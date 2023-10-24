@@ -1,42 +1,23 @@
 package org.syr.cis687.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.syr.cis687.models.DriverDetails;
-import org.syr.cis687.repository.DriverRepository;
+import java.util.Optional;
 
-@Controller
-@RequestMapping(path="/driver")
-public class DriverController {
-    @Autowired
-    private DriverRepository driverRepository;
+public interface DriverController {
 
-    @PostMapping(path="/addDriverDetails")
-    public @ResponseBody String addDriver (
-            @RequestParam String firstName,
-            @RequestParam String lastName,
-            @RequestParam String employeeId,
-            @RequestParam String contactNumber,
-            @RequestParam String email) {
+    @PostMapping(path = "/addDriverDetails")
+    public DriverDetails addDriver(@RequestBody DriverDetails details);
 
-        // Create the driver object.
-        DriverDetails d = new DriverDetails();
+    @GetMapping(path = "/getAllDriverDetails")
+    public Iterable<DriverDetails> getAllUsers();
 
-        // Populate fields.
-        d.setFirstName(firstName);
-        d.setLastName(lastName);
-        d.setOrgId(employeeId);
-        d.setContactNumber(contactNumber);
-        d.setEmailId(email);
+    @GetMapping(path = "/getDriverById/{id}")
+    public Optional<DriverDetails> getDriverById(@PathVariable("id") Long id);
 
-        driverRepository.save(d);
-        return "Saved";
-    }
+    @PutMapping(path = "/updateDriverDetails/{id}")
+    public DriverDetails updateDriverDetails(@PathVariable("id") Long id, @RequestBody DriverDetails details);
 
-    @GetMapping(path="/getDriverDetails")
-    public @ResponseBody Iterable<DriverDetails> getAllUsers() {
-        // This returns a JSON or XML with the users
-        return driverRepository.findAll();
-    }
+    @DeleteMapping(path = "/deleteDriverDetails/{id}")
+    public boolean deleteDriverDetails(@PathVariable("id") Long id);
 }

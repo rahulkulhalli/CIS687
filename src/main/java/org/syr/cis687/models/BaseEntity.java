@@ -1,15 +1,15 @@
 package org.syr.cis687.models;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
 
 /**
  * This Entity object will be act as the Base class for the three entities in this project:
  * Driver, Emergency Contacts, Student.
  */
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 public abstract class BaseEntity {
 
     @NonNull
