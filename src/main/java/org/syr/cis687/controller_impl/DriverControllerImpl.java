@@ -1,11 +1,15 @@
 package org.syr.cis687.controller_impl;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.syr.cis687.controller.DriverController;
 import org.syr.cis687.models.DriverDetails;
 import org.syr.cis687.service_impl.DriverServiceImpl;
 
+import java.sql.Driver;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -19,27 +23,58 @@ public class DriverControllerImpl implements DriverController {
     }
 
     @Override
-    public DriverDetails addDriver(DriverDetails details) {
-        return driverService.addDriver(details);
+    @PostMapping(path = "/addDriverDetails")
+    public ResponseEntity<DriverDetails> addDriver(@RequestBody DriverDetails details) {
+        try {
+            DriverDetails insertedObj = driverService.addDriver(details);
+            if (insertedObj == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+            }
+            return new ResponseEntity<>(insertedObj, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
-    public Iterable<DriverDetails> getAllUsers() {
-        return driverService.getAllDrivers();
+    @GetMapping(path = "/getAllDriverDetails")
+    public ResponseEntity<List<DriverDetails>> getAllUsers() {
+        List<DriverDetails> insertedObj = driverService.getAllDrivers();
+        if (insertedObj != null && !insertedObj.isEmpty()) {
+            return new ResponseEntity<>(insertedObj, HttpStatus.CREATED);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
     }
 
     @Override
-    public Optional<DriverDetails> getDriverById(Long id) {
-        return driverService.getDriverById(id);
+    @GetMapping(path = "/getDriverById/{id}")
+    public ResponseEntity<DriverDetails> getDriverById(@PathVariable("id") Long id) {
+        Optional<DriverDetails> insertedObj = driverService.getDriverById(id);
+        return insertedObj.map(
+                driverDetails ->
+                new ResponseEntity<>(driverDetails, HttpStatus.OK)).orElseGet(() ->
+                new ResponseEntity<>(HttpStatus.NOT_FOUND)
+        );
     }
 
     @Override
-    public DriverDetails updateDriverDetails(Long id, DriverDetails details) {
-        return driverService.updateDriver(id, details);
+    @PutMapping(path = "/updateDriverDetails/{id}")
+    public ResponseEntity<DriverDetails> updateDriverDetails(@PathVariable("id") Long id, @RequestBody DriverDetails details) {
+        DriverDetails updated = driverService.updateDriver(id, details);
+        if (updated == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        }
+        return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 
     @Override
-    public boolean deleteDriverDetails(Long id) {
-        return driverService.deleteDriver(id);
+    @DeleteMapping(path = "/deleteDriverDetails/{id}")
+    public ResponseEntity<Boolean> deleteDriverDetails(@PathVariable("id") Long id) {
+        boolean status = driverService.deleteDriver(id);
+        if (status) {
+            return new ResponseEntity<>(Boolean.TRUE, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(Boolean.FALSE, HttpStatus.NOT_MODIFIED);
     }
 }

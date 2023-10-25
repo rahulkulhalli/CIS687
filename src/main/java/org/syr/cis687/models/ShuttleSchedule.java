@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
-import java.util.Date;
+import java.sql.Time;
 
 /**
  * This table will be populated once using a startup script.
@@ -17,7 +17,7 @@ import java.util.Date;
 public class ShuttleSchedule {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @NonNull
     @Getter @Setter
     private Long scheduleId;
@@ -25,10 +25,15 @@ public class ShuttleSchedule {
     @Column(name = "start_time")
     @NonNull
     @Getter @Setter
-    private Date startTime;
+    private Time startTime;
 
     @Column(name = "end_time")
     @NonNull
     @Getter @Setter
-    private Date endTime;
+    private Time endTime;
+
+    @Column(name = "day_of_week", unique = true)
+    @NonNull
+    @Getter @Setter
+    private String dayOfWeek;
 }

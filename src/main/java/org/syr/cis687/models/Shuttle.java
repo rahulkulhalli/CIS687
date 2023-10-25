@@ -21,7 +21,7 @@ public class Shuttle {
     @Getter @Setter
     private Long shuttleId;
 
-    @Column(name = "alias")
+    @Column(name = "alias", unique = true)
     @Getter @Setter
     private String alias;
 

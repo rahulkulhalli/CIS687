@@ -1,12 +1,42 @@
 package org.syr.cis687.models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 
 @Entity
-public class Student extends BaseEntity {
-    public Student() {
-        super();
-    }
+@Table(name = "student")
+public class Student {
+
+    @NonNull
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    @Getter
+    @Setter
+    private Long id;
+
+    @NonNull
+    @Column(name = "first_name")
+    @Getter @Setter private String firstName;
+
+    @NonNull
+    @Column(name = "last_name")
+    @Getter @Setter private String lastName;
+
+    @NonNull
+    @Column(name = "email_id", unique = true)
+    @Getter @Setter private String emailId;
+
+    @NonNull
+    @Column(name = "contact_number", unique = true)
+    @Getter @Setter private String contactNumber;
+
+    @NonNull
+    // Organization ID - can be used as Employee ID or Student ID.
+    @Column(name = "org_id", unique = true)
+    @Getter @Setter private String orgId;
 
     //Student HAS-A address.
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -24,7 +54,7 @@ public class Student extends BaseEntity {
         // cannot disclose sensitive information to anyone who issues a GET.
         return String.format(
                 "%s %s - SUID: %s, Email: %s",
-                super.getFirstName(), super.getLastName(), super.getOrgId(), super.getEmailId()
+                this.firstName, this.lastName, this.orgId, this.emailId
         );
     }
 }

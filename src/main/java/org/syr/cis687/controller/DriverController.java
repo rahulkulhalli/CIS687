@@ -1,23 +1,21 @@
 package org.syr.cis687.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.syr.cis687.models.DriverDetails;
+
+import java.util.List;
 import java.util.Optional;
 
 public interface DriverController {
 
-    @PostMapping(path = "/addDriverDetails")
-    public DriverDetails addDriver(@RequestBody DriverDetails details);
+    public ResponseEntity<DriverDetails> addDriver(@RequestBody DriverDetails details);
 
-    @GetMapping(path = "/getAllDriverDetails")
-    public Iterable<DriverDetails> getAllUsers();
+    public ResponseEntity<List<DriverDetails>> getAllUsers();
 
-    @GetMapping(path = "/getDriverById/{id}")
-    public Optional<DriverDetails> getDriverById(@PathVariable("id") Long id);
+    public ResponseEntity<DriverDetails> getDriverById(@PathVariable("id") Long id);
 
-    @PutMapping(path = "/updateDriverDetails/{id}")
-    public DriverDetails updateDriverDetails(@PathVariable("id") Long id, @RequestBody DriverDetails details);
+    public ResponseEntity<DriverDetails> updateDriverDetails(@PathVariable("id") Long id, @RequestBody DriverDetails details);
 
-    @DeleteMapping(path = "/deleteDriverDetails/{id}")
-    public boolean deleteDriverDetails(@PathVariable("id") Long id);
+    public ResponseEntity<Boolean> deleteDriverDetails(@PathVariable("id") Long id);
 }
