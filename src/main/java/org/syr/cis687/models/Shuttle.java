@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.syr.cis687.enums.CurrentState;
 import org.syr.cis687.enums.OperatingState;
 
+import java.sql.Time;
 import java.util.List;
 
 @Entity
@@ -48,6 +49,10 @@ public class Shuttle {
     @JoinColumn(name = "current_location_fk")
     @Getter @Setter
     private Location currentLocation;
+
+    @Column(name = "departure_time")
+    @Getter @Setter
+    private Time departureTime;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "passengers_fk")
