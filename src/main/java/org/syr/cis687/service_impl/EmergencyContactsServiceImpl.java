@@ -59,8 +59,7 @@ public class EmergencyContactsServiceImpl implements EmergencyContactsService {
     @Override
     public boolean deleteContact(Long id) {
         try {
-            this.contactsRepo.deleteById(id);
-            return true;
+            return this.contactsRepo.deleteByIdAndReturnCount(id) > 0;
         } catch (Exception e) {
             return false;
         }

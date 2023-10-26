@@ -29,17 +29,11 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public boolean deleteStudent(Long id) {
-        if (!repository.existsById(id)) {
-            return false;
-        }
-
         try {
-            repository.deleteById(id);
+            return this.repository.deleteByIdAndReturnCount(id) > 0;
         } catch (Exception e) {
             return false;
         }
-
-        return true;
     }
 
     @Override
@@ -61,9 +55,6 @@ public class StudentServiceImpl implements StudentService {
         dbStudent.setContactNumber(student.getContactNumber());
         dbStudent.setOrgId(student.getOrgId());
         dbStudent.setEmailId(student.getEmailId());
-
-        // remove original from db.
-        deleteStudent(dbStudent.getId());
 
         // persist in db.
         addStudent(dbStudent);

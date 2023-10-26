@@ -59,11 +59,9 @@ public class DriverServiceImpl implements DriverService {
     @Override
     public boolean deleteDriver(Long id) {
         try {
-            repository.deleteById(id);
+            return repository.deleteByIdAndReturnCount(id) > 0;
         } catch (Exception e) {
             return false;
         }
-
-        return true;
     }
 }

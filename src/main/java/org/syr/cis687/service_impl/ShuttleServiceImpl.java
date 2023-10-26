@@ -59,17 +59,10 @@ public class ShuttleServiceImpl implements ShuttleService {
 
     @Override
     public boolean deleteShuttle(Long id) {
-
-        if (!repository.existsById(id)) {
-            return false;
-        }
-
         try {
-            repository.deleteById(id);
+            return this.repository.deleteByIdAndReturnCount(id) > 0;
         } catch (Exception e) {
             return false;
         }
-
-        return true;
     }
 }

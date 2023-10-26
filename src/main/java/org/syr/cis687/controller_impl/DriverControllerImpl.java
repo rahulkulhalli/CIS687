@@ -52,7 +52,7 @@ public class DriverControllerImpl implements DriverController {
     }
 
     @Override
-    @DeleteMapping(path = "/deleteDriverDetails/")
+    @DeleteMapping(path = "/deleteDriverDetails")
     public ResponseEntity<ApiResponse> deleteDriverDetails(@RequestParam Long id) {
         return CommonUtils.validateAndReturn(this.driverService.deleteDriver(id), OpType.DELETE);
     }

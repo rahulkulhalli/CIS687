@@ -27,13 +27,13 @@ public class CommonUtils {
         switch (responseType) {
             case NULL_OBJ -> {
                 response.setStatusCode(HttpStatus.NO_CONTENT.value());
-                response.setStatus(HttpStatus.NO_CONTENT.getReasonPhrase());
-                response.setError("Could not process null Object");
+                response.setStatus("Could not process null Object");
+                response.setError(HttpStatus.NO_CONTENT.getReasonPhrase());
                 return ResponseEntity.badRequest().body(response);
             }
             case CREATED -> {
                 response.setStatusCode(HttpStatus.CREATED.value());
-                response.setStatus(HttpStatus.OK.getReasonPhrase());
+                response.setStatus("Successfully inserted into DB.");
                 response.setError(null);
                 return ResponseEntity.ok(response);
             }
@@ -75,7 +75,7 @@ public class CommonUtils {
             }
             case NOT_FOUND -> {
                 response.setStatusCode(HttpStatus.NOT_FOUND.value());
-                response.setStatus("Could not delete entry from DB.");
+                response.setStatus("Could not find entry in DB.");
                 response.setError(HttpStatus.NOT_FOUND.getReasonPhrase());
                 return ResponseEntity.badRequest().body(response);
             }
