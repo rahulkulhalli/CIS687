@@ -1,24 +1,20 @@
 package org.syr.cis687.controller;
 
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.syr.cis687.models.ApiResponse;
 import org.syr.cis687.models.Location;
-
-import java.util.List;
 
 public interface LocationController {
 
-    @PostMapping(name = "/addLocation")
-    public Location addLocation(@RequestBody Location location);
+    ResponseEntity<ApiResponse> addLocation(@RequestBody Location location);
 
-    @GetMapping(path = "/getAllLocations")
-    public List<Location> getAllLocations();
+    ResponseEntity<ApiResponse> getAllLocations();
 
-    @GetMapping(path = "/getLocationById/{id}")
-    public Location getLocationById(@PathVariable("id") Long id);
+    ResponseEntity<ApiResponse> getLocationById(@RequestParam Long id);
 
-    @PutMapping(path = "/updateLocation/{id}")
-    public Location updateLocationById(@PathVariable("id") Long id, @RequestBody Location location);
+    ResponseEntity<ApiResponse> updateLocationById(@RequestParam Long id, @RequestBody Location location);
 
-    @DeleteMapping(path = "/deleteLocation/{id}")
-    public boolean deleteLocationById(@PathVariable("id") Long id);
+    ResponseEntity<ApiResponse> deleteLocationById(@RequestParam Long id);
 }

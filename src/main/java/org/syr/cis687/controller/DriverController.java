@@ -1,21 +1,20 @@
 package org.syr.cis687.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.syr.cis687.models.ApiResponse;
 import org.syr.cis687.models.DriverDetails;
-
-import java.util.List;
-import java.util.Optional;
 
 public interface DriverController {
 
-    public ResponseEntity<DriverDetails> addDriver(@RequestBody DriverDetails details);
+    ResponseEntity<ApiResponse> addDriver(@RequestBody DriverDetails details);
 
-    public ResponseEntity<List<DriverDetails>> getAllUsers();
+    ResponseEntity<ApiResponse> getAllUsers();
 
-    public ResponseEntity<DriverDetails> getDriverById(@PathVariable("id") Long id);
+    ResponseEntity<ApiResponse> getDriverById(@RequestParam Long id);
 
-    public ResponseEntity<DriverDetails> updateDriverDetails(@PathVariable("id") Long id, @RequestBody DriverDetails details);
+    ResponseEntity<ApiResponse> updateDriverDetails(@RequestParam Long id, @RequestBody DriverDetails details);
 
-    public ResponseEntity<Boolean> deleteDriverDetails(@PathVariable("id") Long id);
+    ResponseEntity<ApiResponse> deleteDriverDetails(@RequestParam("id") Long id);
 }

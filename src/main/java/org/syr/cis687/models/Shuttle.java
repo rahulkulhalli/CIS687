@@ -7,7 +7,6 @@ import lombok.Setter;
 import org.syr.cis687.enums.CurrentState;
 import org.syr.cis687.enums.OperatingState;
 
-import java.util.Date;
 import java.util.List;
 
 @Entity

@@ -1,23 +1,20 @@
 package org.syr.cis687.controller;
 
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.syr.cis687.models.ApiResponse;
 import org.syr.cis687.models.Student;
 
-import java.util.List;
-
 public interface StudentController {
-    @PostMapping(path = "/addStudent")
-    public Student addStudent(@RequestBody Student student);
 
-    @GetMapping(path = "/getAllStudents")
-    public List<Student> getAllStudents();
+    ResponseEntity<ApiResponse> addStudent(@RequestBody Student student);
 
-    @GetMapping(path = "/getStudent/{id}")
-    public Student getStudentById(@PathVariable("id") Long id);
+    ResponseEntity<ApiResponse> getAllStudents();
 
-    @PutMapping(path = "/updateStudent/{id}")
-    public Student updateStudent(@PathVariable("id") Long id, @RequestBody Student student);
+    ResponseEntity<ApiResponse> getStudentById(@RequestParam Long id);
 
-    @DeleteMapping(path = "/deleteStudent/{id}")
-    public boolean deleteStudent(@PathVariable("id") Long id);
+    ResponseEntity<ApiResponse> updateStudent(@RequestParam Long id, @RequestBody Student student);
+
+    ResponseEntity<ApiResponse> deleteStudent(@RequestParam Long id);
 }

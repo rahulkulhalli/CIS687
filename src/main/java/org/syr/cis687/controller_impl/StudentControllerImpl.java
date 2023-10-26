@@ -1,12 +1,17 @@
 package org.syr.cis687.controller_impl;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.syr.cis687.controller.StudentController;
+import org.syr.cis687.enums.OpType;
+import org.syr.cis687.models.ApiResponse;
 import org.syr.cis687.models.Student;
 import org.syr.cis687.service_impl.StudentServiceImpl;
+import org.syr.cis687.utils.CommonUtils;
 
-import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping(path = "/student")
@@ -19,27 +24,36 @@ public class StudentControllerImpl implements StudentController {
     }
 
     @Override
-    public Student addStudent(Student student) {
-        return this.service.addStudent(student);
+    @PostMapping(path = "/addStudent")
+    public ResponseEntity<ApiResponse> addStudent(@RequestBody Student student) {
+        return CommonUtils.validateAndReturn(this.service.addStudent(student), OpType.INSERT);
     }
 
     @Override
-    public List<Student> getAllStudents() {
-        return this.service.getAllStudents();
+    @GetMapping(path = "/getAllStudents")
+    public ResponseEntity<ApiResponse> getAllStudents() {
+        return CommonUtils.validateAndReturn(this.service.getAllStudents(), OpType.FIND_ALL);
     }
 
     @Override
-    public Student getStudentById(Long id) {
-        return this.service.getStudentById(id).orElse(null);
+    @GetMapping(path = "/getStudentById")
+    public ResponseEntity<ApiResponse> getStudentById(@RequestParam Long id) {
+        Optional<Student> student = this.service.getStudentById(id);
+        if (student.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return CommonUtils.validateAndReturn(student.get(), OpType.FIND_ONE);
     }
 
     @Override
-    public Student updateStudent(Long id, Student student) {
-        return this.service.updateStudent(id, student);
+    @PutMapping(path = "/updateStudent")
+    public ResponseEntity<ApiResponse> updateStudent(@RequestParam Long id, @RequestBody Student student) {
+        return CommonUtils.validateAndReturn(this.service.updateStudent(id, student), OpType.UPDATE);
     }
 
     @Override
-    public boolean deleteStudent(Long id) {
-        return this.service.deleteStudent(id);
+    @DeleteMapping(path = "/deleteStudent")
+    public ResponseEntity<ApiResponse> deleteStudent(@RequestParam Long id) {
+        return CommonUtils.validateAndReturn(this.service.deleteStudent(id), OpType.DELETE);
     }
 }

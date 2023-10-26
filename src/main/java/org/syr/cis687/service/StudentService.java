@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface StudentService {
-    public Optional<Student> getStudentById(Long id);
-    public Student addStudent(Student student);
-    public boolean deleteStudent(Long id);
-    public Student updateStudent(Long id, Student student);
-    public List<Student> getAllStudents();
+    Optional<Student> getStudentById(Long id);
+    Student addStudent(Student student);
+    boolean deleteStudent(Long id);
+    Student updateStudent(Long id, Student student);
+    List<Student> getAllStudents();
 }
