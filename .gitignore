@@ -33,4 +33,4 @@ build/
 .vscode/
 
 ### API Key Config files ###
-**/src/main/resources/*KEYS*.json
+/src/main/resources/*KEYS*.json
