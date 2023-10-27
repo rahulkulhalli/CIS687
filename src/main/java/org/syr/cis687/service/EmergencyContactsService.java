@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EmergencyContactsService {
-    public List<EmergencyContacts> getAllContacts();
+    List<EmergencyContacts> getAllContacts();
 
-    public Optional<EmergencyContacts> getContactById(Long id);
+    Optional<EmergencyContacts> getContactById(Long id);
 
-    public EmergencyContacts addContact(EmergencyContacts driver);
+    EmergencyContacts addContact(EmergencyContacts driver);
 
-    public EmergencyContacts updateContact(Long id, EmergencyContacts driver);
+    EmergencyContacts updateContact(Long id, EmergencyContacts driver);
 
-    public boolean deleteContact(Long id);
+    boolean deleteContact(Long id);
 }

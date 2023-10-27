@@ -27,6 +27,14 @@ public class ShuttleServiceImpl implements ShuttleService {
 
     @Override
     public Shuttle addShuttle(Shuttle shuttle) {
+        // first, check if a shuttle already exists.
+        Shuttle dbShuttle = this.repository.findById(1L).orElse(null);
+
+        if (dbShuttle != null) {
+            // This won't do.
+            return null;
+        }
+
         return repository.save(shuttle);
     }
 

@@ -7,21 +7,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.syr.cis687.controller.ETAController;
 import org.syr.cis687.models.ApiResponse;
+import org.syr.cis687.service_impl.ETAServiceImpl;
+import org.syr.cis687.utils.CommonUtils;
 
 @Controller
 @RequestMapping(path = "/ETA")
 public class ETAControllerImpl implements ETAController {
+
+    private final ETAServiceImpl service;
+
+    public ETAControllerImpl(ETAServiceImpl impl) {
+        this.service = impl;
+    }
+
     @GetMapping(path = "/getETA")
     @Override
     public ResponseEntity<ApiResponse> calculateETA(@RequestParam String SUID) {
-        // For now, implementing here itself. TODO: Gotta port this to a Service layer.
+        if (SUID == null) {
+            return CommonUtils.getBadResponse(null, "Input SUID is NULL!");
+        }
 
-        // Steps:
-        // 1. Get the shuttle's current location.
-        // 2. Check if the student is on-board the shuttle.
-        // 3. If YES, calculate ETA from current shuttle location to destination.
-        // 4. If NO, calculate ETA from current shuttle location to pick-up stop.
-
-        return null;
+        return this.service.calculateETA(SUID);
     }
 }

@@ -14,8 +14,4 @@ public class Passenger {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter @Setter
     private Long id;
-
-    // Maintain the ID of the student.
-    @OneToOne(mappedBy = "passengerRef", fetch = FetchType.LAZY)
-    private Student student;
 }

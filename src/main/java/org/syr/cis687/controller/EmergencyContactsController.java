@@ -7,13 +7,13 @@ import org.syr.cis687.models.ApiResponse;
 import org.syr.cis687.models.EmergencyContacts;
 
 public interface EmergencyContactsController {
-    public ResponseEntity<ApiResponse> addContact(@RequestBody EmergencyContacts details);
+    ResponseEntity<ApiResponse> addContact(@RequestBody EmergencyContacts details);
 
-    public ResponseEntity<ApiResponse> getAllContacts();
+    ResponseEntity<ApiResponse> getAllContacts();
 
-    public ResponseEntity<ApiResponse> getContactById(@RequestParam Long id);
+    ResponseEntity<ApiResponse> getContactById(@RequestParam Long id);
 
-    public ResponseEntity<ApiResponse> updateContactDetails(@RequestParam Long id, @RequestBody EmergencyContacts details);
+    ResponseEntity<ApiResponse> updateContactDetails(@RequestParam Long id, @RequestBody EmergencyContacts details);
 
-    public ResponseEntity<ApiResponse> deleteContactDetails(@RequestParam Long id);
+    ResponseEntity<ApiResponse> deleteContactDetails(@RequestParam Long id);
 }

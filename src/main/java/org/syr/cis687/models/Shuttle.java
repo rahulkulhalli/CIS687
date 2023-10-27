@@ -54,8 +54,15 @@ public class Shuttle {
     @Getter @Setter
     private Time departureTime;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "passengers_fk")
+    @Column(name = "has_departed")
     @Getter @Setter
-    private List<Passenger> passengerList;
+    private Boolean hasDepartedFromStop;
+
+    @Column(name = "has_arrived")
+    @Getter @Setter
+    private Boolean hasArrivedAtStop;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "shuttle")
+    @Getter @Setter
+    private List<Student> passengerList;
 }

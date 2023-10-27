@@ -39,15 +39,18 @@ public class Student {
     @Getter @Setter private String orgId;
 
     //Student HAS-A address.
+    @Getter @Setter
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "location_fk")
     private Location address;
 
-    // Indicates that a student can be a passenger.
-    // Student IS-A Passenger.
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "passenger_fk")
-    private Passenger passengerRef;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shuttle_id")
+    @Getter @Setter
+    private Shuttle shuttle;
+
+    @Getter @Setter
+    private Boolean hasBoarded = false;
 
     @Override
     public String toString() {
