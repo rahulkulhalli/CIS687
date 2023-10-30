@@ -2,8 +2,8 @@ package org.syr.cis687.utils;
 
 import org.syr.cis687.models.ETA;
 import org.syr.cis687.models.Location;
-
-import java.sql.Time;
+import org.syr.cis687.models.Shuttle;
+import org.syr.cis687.models.Student;
 
 public class LocationUtils {
 
@@ -67,57 +67,108 @@ public class LocationUtils {
         return returnLocation;
     }
 
-    public static final ETABuilder ETA = new ETABuilder();
+    public static final ETABuilder ETA_BUILDER = new ETABuilder();
 
     public static class ETABuilder {
-        private Location from;
-        private Location to;
-        private Time departedTime = null;
+        private Shuttle shuttle;
+        private Student student;
+        private Location stopLocation;
 
-        public ETABuilder from(Location from) {
-            this.from = from;
+        public ETABuilder withShuttle(Shuttle shuttle) {
+            this.shuttle = shuttle;
             return this;
         }
 
-        public ETABuilder to(Location to) {
-            this.to = to;
+        public ETABuilder forStudent(Student student) {
+            this.student = student;
             return this;
         }
 
-        public ETABuilder withDepartedTime(Time departedTime) {
-            this.departedTime = departedTime;
+        public ETABuilder withShuttleStopLocation(Location location) {
+            this.stopLocation = location;
             return this;
         }
 
         public ETA calculate() {
 
-            StringBuilder urlBuilder = new StringBuilder()
-                    .append("https://maps.googleapis.com/maps/api/distancematrix/json")
-                    .append("?destinations=")
-                    .append(this.to.getLatitude())
-                    .append(",")
-                    .append(this.to.getLongitude())
-                    .append("&origins=")
-                    .append(this.from.getLatitude())
-                    .append(",")
-                    .append(this.from.getLongitude())
-                    .append("&units=imperial");
+            ETA etaObj = new ETA();
 
-            // Only add departedTime if it is valid.
-            if (this.departedTime != null) {
-                urlBuilder.append("&departure_time=")
-                        .append(CommonUtils.convertTimeToEpoch(this.departedTime));
+            // Determine if the student is in the shuttle.
+            if (CommonUtils.isStudentOnShuttle(this.shuttle, this.student.getOrgId())) {
+                // how many people before this student?
+                double distanceToBeCovered = 0.0;
+                double timeRequired = 0.0;
+
+                // Check if the student is at the beginning.
+                if (this.shuttle.getPassengerList().get(0).getOrgId().equals(this.student.getOrgId())) {
+                    // compute the distance from the shuttle to the address and break.
+                    double distance = calculateHaversineDistance(
+                            this.shuttle.getCurrentLocation(), this.student.getAddress()
+                    );
+
+                    // Estimated time = distance/speed (convert to minutes)
+                    double time = (distance / this.shuttle.getCurrentSpeed()) * 60;
+
+                    etaObj.setEstimatedTime(String.format("%f minutes", time));
+                    etaObj.setEstimatedDistance(String.format("%f miles", distance));
+                    return etaObj;
+                }
+
+                // If student is [s1, s2, s3, THIS],
+                // calculate distance(shuttle, s1) + distance(s1, s2) + distance(s2, s3) + distance(s3, THIS)
+
+                for (int i = 0; i < this.shuttle.getPassengerList().size(); i++) {
+                    Student currStudent = this.shuttle.getPassengerList().get(i);
+
+                    // We know the target student is not at the first position for sure.
+                    if (i == 0) {
+                        // distance(shuttle, currStudent)
+                        distanceToBeCovered = calculateHaversineDistance(
+                                this.shuttle.getCurrentLocation(), currStudent.getAddress()
+                        );
+                    } else {
+                        Student previousStudent = this.shuttle.getPassengerList().get(i-1);
+                        distanceToBeCovered += calculateHaversineDistance(
+                                currStudent.getAddress(),  previousStudent.getAddress()
+                        );
+
+                        if (currStudent.getOrgId().equals(this.student.getOrgId())) {
+                            break;
+                        }
+                    }
+                }
+
+                timeRequired = (distanceToBeCovered / this.shuttle.getCurrentSpeed()) * 60;
+                etaObj.setEstimatedTime(String.format("%f minutes", timeRequired));
+                etaObj.setEstimatedDistance(String.format("%f miles", distanceToBeCovered));
+
+            } else {
+                // iterate over ALL Students in the shuttle and sum their pairwise distance
+                // and add the distance from the last student's address to the shuttle stop.
+                double distance = 0.0;
+                int trailing = 0;
+
+                for (int pointer = 1; pointer < this.shuttle.getPassengerList().size(); pointer++) {
+                    Student trailingStudent = this.shuttle.getPassengerList().get(trailing);
+                    Student currentStudent = this.shuttle.getPassengerList().get(pointer);
+
+                    // compute pairwise distance.
+                    distance += calculateHaversineDistance(trailingStudent.getAddress(), currentStudent.getAddress());
+                    trailing++;
+                }
+
+                // lastly, distance from last student to shuttle stop.
+                distance += calculateHaversineDistance(
+                        this.shuttle.getPassengerList().get(this.shuttle.getPassengerList().size()-1).getAddress(),
+                        this.stopLocation
+                );
+
+                double time = (distance / this.shuttle.getCurrentSpeed()) * 60;
+                etaObj.setEstimatedDistance(String.format("%f miles", distance));
+                etaObj.setEstimatedTime(String.format("%f minutes", time));
             }
 
-            // Finally, add the key.
-            urlBuilder.append("&key=")
-                    .append(CommonUtils.getApiKey());
-
-            // Build the string.
-            String url = urlBuilder.toString();
-
-            // Offload the work to the HttpUtils and return the parsed ETA Object.
-            return HttpUtils.makePostRequest(url);
+            return etaObj;
         }
     }
 }

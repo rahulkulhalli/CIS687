@@ -7,10 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syr.cis687.enums.CurrentState;
 import org.syr.cis687.enums.OperatingState;
 import org.syr.cis687.models.*;
-import org.syr.cis687.repository.ShuttleRepository;
-import org.syr.cis687.repository.ShuttleScheduleRepository;
-import org.syr.cis687.repository.ShuttleStopRepository;
-import org.syr.cis687.repository.StudentRepository;
+import org.syr.cis687.repository.*;
 import org.syr.cis687.service.ShuttleService;
 import org.syr.cis687.utils.CommonUtils;
 import org.syr.cis687.utils.LocationUtils;
@@ -33,6 +30,9 @@ public class ShuttleServiceImpl implements ShuttleService {
 
     @Autowired
     private ShuttleScheduleRepository scheduleRepository;
+
+    @Autowired
+    private LocationRepository locationRepository;
 
     @Autowired
     private ShuttleStopRepository stopRepository;
@@ -61,6 +61,10 @@ public class ShuttleServiceImpl implements ShuttleService {
             // This won't do, because we only allow a single shuttle to be added..
             return null;
         }
+
+        // get the 0th location.
+        Location location = this.locationRepository.findById(1L).orElse(null);
+        shuttle.setCurrentLocation(location);
 
         return this.repository.save(shuttle);
     }
@@ -144,14 +148,23 @@ public class ShuttleServiceImpl implements ShuttleService {
      * We care about the buffer because in the worst case, the polling can begin at x:59:59. If that is the
      * case, the next polling will happen at (x+1):09:59.
      */
-    @Scheduled(fixedRate = 600000)
+    @Scheduled(fixedRate = 12000)
     public void pollStartAndEnd() {
+
+        // 600000
+
+        System.out.println("[pollStartAndEnd] Polling startAndEnd...");
+
         Shuttle shuttle = getShuttle();
         if (shuttle == null) {
             return;
         }
 
         if (shuttle.getOperatingState() == OperatingState.MAINTENANCE) {
+            return;
+        }
+
+        if (shuttle.getHasArrivedAtStop()) {
             return;
         }
 
@@ -171,8 +184,18 @@ public class ShuttleServiceImpl implements ShuttleService {
         // Get the current time.
         Time currentTime = Time.valueOf(LocalTime.now());
 
+        System.out.printf("[Current time: %s, startTime: %s, endTime: %s, Shuttle state: %s]",
+                currentTime, startTime, endTime, shuttle.getOperatingState());
+
         // start time.
-        if (currentTime.compareTo(startTime) >= 0 && currentTime.compareTo(startBuffer) <= 0) {
+        // currentTime.compareTo(startTime) >= 0 && currentTime.compareTo(startBuffer) <= 0
+        if (currentTime.compareTo(startTime) >= 0) {
+
+            System.out.println("[pollStartAndEnd] Shuttle has arrived!");
+
+            if (this.stopRepository == null) {
+                return;
+            }
 
             // get shuttle location.
             ShuttleStop stop = CommonUtils.convertIterableToList(this.stopRepository.findAll()).get(0);
@@ -197,6 +220,7 @@ public class ShuttleServiceImpl implements ShuttleService {
 
         // end time.
         if (currentTime.compareTo(endTime) >= 0 && currentTime.compareTo(endBuffer) <= 0) {
+
             // switch the boolean flag.
             shuttle.setOperatingState(OperatingState.NON_OPERATIONAL);
 
@@ -209,8 +233,13 @@ public class ShuttleServiceImpl implements ShuttleService {
     /**
      * Poll every 10 minutes. if the shuttle has been marked to have arrived at the stop,
      */
-    @Scheduled(fixedRate = 600000)
+    @Scheduled(fixedRate = 15000)
     public void checkForStart() {
+
+        // 600000
+
+        System.out.println("[checkForStart] polling to see if shuttle can start...");
+
         Shuttle shuttle = getShuttle();
         if (shuttle == null) {
             return;
@@ -220,14 +249,27 @@ public class ShuttleServiceImpl implements ShuttleService {
             return;
         }
 
+        if (shuttle.getHasDepartedFromStop()) {
+            return;
+        }
+
         if (shuttle.getHasArrivedAtStop()
                 && shuttle.getOperatingState() == OperatingState.OPERATIONAL) {
 
             Time currentTime = Time.valueOf(LocalTime.now());
 
+            System.out.println(String.format(
+                    "[arrivalTime=%s, currentTime=%s, diff=%d]",
+                    shuttle.getArrivalTime(), currentTime,
+                    currentTime.getTime() - shuttle.getArrivalTime().getTime()
+            ));
+
             // check if shuttle is full or 15 minutes have elapsed..
+            // 900000L
             if (shuttle.getPassengerList().size() == shuttle.getMaxCapacity()
-                    || (currentTime.getTime() - shuttle.getArrivalTime().getTime() >= 900000L)) {
+                    || (currentTime.getTime() - shuttle.getArrivalTime().getTime() >= 10000L)) {
+
+                System.out.println("[checkForStart] Shuttle has departed!");
 
                 // mark for departure.
                 shuttle.setArrivalTime(null);
@@ -243,6 +285,7 @@ public class ShuttleServiceImpl implements ShuttleService {
 
     @Scheduled(fixedRate = 10000)
     public void tripSimulation() {
+
         Shuttle shuttle = getShuttle();
 
         if (shuttle == null) {
@@ -252,6 +295,8 @@ public class ShuttleServiceImpl implements ShuttleService {
         if (!shuttle.getHasDepartedFromStop()) {
             return;
         }
+
+        System.out.println("[tripSimulation] Shuttle is on the move...");
 
         Location destination;
 
@@ -274,7 +319,8 @@ public class ShuttleServiceImpl implements ShuttleService {
         Location currentLocation = shuttle.getCurrentLocation();
 
         if (currentLocation.getLatitude().equals(destination.getLatitude())
-                && currentLocation.getLongitude().equals(destination.getLongitude())) {
+                && currentLocation.getLongitude().equals(destination.getLongitude())
+                && !shuttle.getPassengerList().isEmpty()) {
             // This means that the shuttle has reached a student's destination.
 
             // Pop the student off the queue.

@@ -1,5 +1,6 @@
 package org.syr.cis687.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NonNull;
@@ -9,6 +10,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "location")
 public class Location {
 
@@ -26,15 +28,11 @@ public class Location {
     @Column(name = "latitude")
     @Getter @Setter private Double latitude;
 
-    @NonNull
-    @Column(name = "last_updated")
-    @Getter @Setter private Timestamp lastUpdated = Timestamp.valueOf(LocalDateTime.now());;
-
     // Every student will have an address, and the shuttle will also have two addresses.
     @OneToOne(mappedBy = "address", fetch = FetchType.LAZY)
     private Student student;
 
-    @OneToOne(mappedBy = "currentLocation", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "currentLocation", fetch = FetchType.EAGER)
     private Shuttle shuttle;
 
     @Override

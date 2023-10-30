@@ -32,7 +32,7 @@ public class LocationServiceImpl implements LocationService {
             Location loc = optionalLoc.get();
             loc.setLatitude(location.getLatitude());
             loc.setLongitude(location.getLongitude());
-            loc.setLastUpdated(location.getLastUpdated());
+//            loc.setLastUpdated(location.getLastUpdated());
 
             // persist to db.
             return addLocation(loc);

@@ -45,7 +45,7 @@ public class ShuttleStopServiceImpl implements ShuttleStopService {
         ShuttleStop stop = optStop.get();
 
         // Update attributes.
-        stop.setShuttleLocation(shuttleStop.getShuttleLocation());
+        stop.setShuttleStopLocation(shuttleStop.getShuttleStopLocation());
 
         // Persist in db.
         return addShuttleStop(stop);

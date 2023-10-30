@@ -1,6 +1,8 @@
 package org.syr.cis687.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NonNull;
@@ -10,6 +12,7 @@ import java.util.Objects;
 
 
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "student")
 public class Student {
 
@@ -46,6 +49,7 @@ public class Student {
     @Getter @Setter
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "location_fk")
+    @JsonProperty("address")
     private Location address;
 
     @ManyToOne(fetch = FetchType.LAZY)

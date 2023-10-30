@@ -2,7 +2,9 @@ package org.syr.cis687.service_impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.syr.cis687.models.Location;
 import org.syr.cis687.models.Student;
+import org.syr.cis687.repository.LocationRepository;
 import org.syr.cis687.repository.StudentRepository;
 import org.syr.cis687.service.StudentService;
 import org.syr.cis687.utils.CommonUtils;
@@ -17,6 +19,9 @@ public class StudentServiceImpl implements StudentService {
     @Autowired
     private StudentRepository repository;
 
+    @Autowired
+    private LocationRepository locationRepository;
+
     @Override
     public Optional<Student> getStudentById(Long id) {
         return repository.findById(id);
@@ -24,12 +29,23 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student addStudent(Student student) {
+        Location loc = student.getAddress();
+        this.locationRepository.save(loc);
         return repository.save(student);
     }
 
     @Override
     public boolean deleteStudent(Long id) {
         try {
+            Student student = this.repository.findById(id).orElse(null);
+            if (student == null) {
+                return false;
+            }
+
+            Location location = student.getAddress();
+
+            // delete the location too.
+            this.locationRepository.deleteById(location.getId());
             return this.repository.deleteByIdAndReturnCount(id) > 0;
         } catch (Exception e) {
             return false;
@@ -55,9 +71,13 @@ public class StudentServiceImpl implements StudentService {
         dbStudent.setContactNumber(student.getContactNumber());
         dbStudent.setOrgId(student.getOrgId());
         dbStudent.setEmailId(student.getEmailId());
+        dbStudent.setAddress(student.getAddress());
+
+        Location newLocation = student.getAddress();
 
         // persist in db.
         addStudent(dbStudent);
+        this.locationRepository.save(newLocation);
 
         return dbStudent;
     }

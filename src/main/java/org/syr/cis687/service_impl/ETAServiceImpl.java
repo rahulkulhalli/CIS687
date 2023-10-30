@@ -57,28 +57,11 @@ public class ETAServiceImpl implements ETAService {
         // Key-in on the shuttle.
         Shuttle shuttle = optShuttle.get();
 
-        /*
-        If the student is IN the shuttle, display the ETA to their destination address.
-        If the student is NOT in the shuttle, display the ETA of the shuttle to the stop.
-         */
-
-        ETA eta;
-
-        if (CommonUtils.isStudentOnShuttle(shuttle, orgId)) {
-            // This means that the student is IN the shuttle.
-            eta = LocationUtils.ETA
-                    .from(shuttle.getCurrentLocation())
-                    .to(student.getAddress())
-                    .withDepartedTime(shuttle.getDepartureTime())
-                    .calculate();
-        } else {
-            // This means that the student is OUTSIDE the shuttle.
-            eta = LocationUtils.ETA
-                    .from(shuttle.getCurrentLocation())
-                    .to(shuttleStop.getShuttleLocation())
-                    .withDepartedTime(shuttle.getDepartureTime())
-                    .calculate();
-        }
+        ETA eta = LocationUtils.ETA_BUILDER
+                .withShuttle(shuttle)
+                .forStudent(student)
+                .withShuttleStopLocation(shuttleStop.getShuttleStopLocation())
+                .calculate();
 
         if (eta == null) {
             return CommonUtils.getBadResponse(orgId, String.format("Could not compute ETA for SUID %s!", orgId));

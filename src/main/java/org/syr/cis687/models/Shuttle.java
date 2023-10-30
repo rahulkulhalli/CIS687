@@ -1,6 +1,8 @@
 package org.syr.cis687.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NonNull;
@@ -15,6 +17,7 @@ import java.util.List;
 @Entity
 @ToString
 @Table(name = "shuttle")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Shuttle {
 
     @NonNull
@@ -48,8 +51,9 @@ public class Shuttle {
     @Getter @Setter
     private CurrentState currentState;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "current_location_fk")
+    @JsonProperty("current_location")
     @Getter @Setter
     private Location currentLocation;
 
