@@ -5,7 +5,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
-import java.util.Date;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "location")
@@ -27,7 +28,7 @@ public class Location {
 
     @NonNull
     @Column(name = "last_updated")
-    @Getter @Setter private Date lastUpdated;
+    @Getter @Setter private Timestamp lastUpdated = Timestamp.valueOf(LocalDateTime.now());;
 
     // Every student will have an address, and the shuttle will also have two addresses.
     @OneToOne(mappedBy = "address", fetch = FetchType.LAZY)

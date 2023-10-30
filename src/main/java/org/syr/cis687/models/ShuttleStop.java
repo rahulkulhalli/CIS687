@@ -17,7 +17,7 @@ public class ShuttleStop {
     @NonNull
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "stop_location_fk")
-    private Location shuttleLocation;
+    private Location shuttleStopLocation;
 
     // Any other Shuttle Stop attributes?
 }

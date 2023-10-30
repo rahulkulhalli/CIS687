@@ -1,9 +1,13 @@
 package org.syr.cis687.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+
+import java.util.Objects;
+
 
 @Entity
 @Table(name = "student")
@@ -46,6 +50,7 @@ public class Student {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shuttle_id")
+    @JsonBackReference
     @Getter @Setter
     private Shuttle shuttle;
 
@@ -54,10 +59,44 @@ public class Student {
 
     @Override
     public String toString() {
-        // cannot disclose sensitive information to anyone who issues a GET.
         return String.format(
-                "%s %s - SUID: %s, Email: %s",
-                this.firstName, this.lastName, this.orgId, this.emailId
+                "Student[id=%s, orgId=%s, firstName=%s, lastName=%s, emailId=%s]",
+                this.id, this.orgId, this.firstName, this.lastName, this.emailId
+        );
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        try {
+            if (obj == null) {
+                return false;
+            }
+
+            if (obj == this) {
+                return true;
+            }
+
+            Student otherStudent = (Student) obj;
+
+            return (otherStudent.getId().equals(this.id)
+                    && otherStudent.getFirstName().equals(this.firstName)
+                    && otherStudent.getLastName().equals(this.lastName)
+                    && otherStudent.getEmailId().equals(this.emailId)
+                    && otherStudent.getAddress().equals(this.address)
+                    && otherStudent.getContactNumber().equals(this.contactNumber)
+                    && otherStudent.getOrgId().equals(this.orgId));
+
+        } catch (ClassCastException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                this.id, this.firstName, this.lastName,
+                this.address, this.emailId, this.contactNumber, this.orgId
         );
     }
 }

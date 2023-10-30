@@ -17,4 +17,18 @@ public interface ShuttleController {
     ResponseEntity<ApiResponse> updateShuttleById(@RequestParam Long id, @RequestBody Shuttle shuttle);
 
     ResponseEntity<ApiResponse> deleteShuttleById(@RequestParam Long id);
+
+    ResponseEntity<ApiResponse> getCurrentShuttleLocation();
+
+    // Shuttle operations.
+
+    ResponseEntity<ApiResponse> markShuttleDeparture();
+
+    ResponseEntity<ApiResponse> markShuttleArrival();
+
+    ResponseEntity<ApiResponse> addStudentToShuttle(@RequestParam String studentId);
+
+    ResponseEntity<ApiResponse> removeStudentFromShuttle(@RequestParam String studentId);
+
+    ResponseEntity<ApiResponse> startTrip();
 }

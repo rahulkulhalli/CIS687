@@ -2,5 +2,6 @@ package org.syr.cis687.enums;
 
 public enum OperatingState {
     OPERATIONAL,
-    MAINTENANCE
+    MAINTENANCE,
+    NON_OPERATIONAL
 }

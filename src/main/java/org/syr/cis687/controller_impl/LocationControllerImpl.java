@@ -24,7 +24,7 @@ public class LocationControllerImpl implements LocationController {
     }
 
     @Override
-    @PostMapping(name = "/addLocation")
+    @PostMapping(path = "/addLocation")
     public ResponseEntity<ApiResponse> addLocation(@RequestBody Location location) {
         return CommonUtils.validateAndReturn(this.locationService.addLocation(location), OpType.INSERT);
     }

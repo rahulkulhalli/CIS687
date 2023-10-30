@@ -1,9 +1,11 @@
 package org.syr.cis687.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.ToString;
 import org.syr.cis687.enums.CurrentState;
 import org.syr.cis687.enums.OperatingState;
 
@@ -11,6 +13,7 @@ import java.sql.Time;
 import java.util.List;
 
 @Entity
+@ToString
 @Table(name = "shuttle")
 public class Shuttle {
 
@@ -33,7 +36,7 @@ public class Shuttle {
     @NonNull
     @Column(name = "current_capacity")
     @Getter @Setter
-    private Integer currentCapacity;
+    private Integer currentCapacity = 0;
 
     @NonNull
     @Column(name = "operating_state")
@@ -54,15 +57,27 @@ public class Shuttle {
     @Getter @Setter
     private Time departureTime;
 
+    @Column(name = "arrival_time")
+    @Getter @Setter
+    private Time arrivalTime;
+
     @Column(name = "has_departed")
     @Getter @Setter
-    private Boolean hasDepartedFromStop;
+    private Boolean hasDepartedFromStop = false;
 
     @Column(name = "has_arrived")
     @Getter @Setter
-    private Boolean hasArrivedAtStop;
+    private Boolean hasArrivedAtStop = false;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "shuttle")
+    @Column(name = "shuttle_speed")
+    @Getter @Setter
+    private Double currentSpeed = 18.0;
+
+    @Getter @Setter
+    private Long timeSinceLastStop = 0L;
+
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH}, mappedBy = "shuttle", fetch = FetchType.LAZY)
+    @JsonManagedReference
     @Getter @Setter
     private List<Student> passengerList;
 }
