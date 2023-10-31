@@ -1,4 +1,4 @@
-# CIS687
+# WhereMyShuttleAt
 
 Our implementation for the CIS 687 Project
 
@@ -23,11 +23,22 @@ This project is implemented completely in Java Spring-Boot. The backend used a M
 
 <hr/>
 
+## Setup
+1. To set this code up locally, clone the repository:
+`git clone git@github.com:rahulkulhalli/CIS687.git`
+2. Next, ensure you have MySQL installed. You may download that from [here](https://dev.mysql.com/downloads/)
+3. Once MySQL is set up, create a new database called `shuttle_db`. Ensure that `root` has access to this database
+4. Navigate to `src/main/resources/application.properties` and change the `spring.datasource.username` and
+   `spring.datasource.password` properties to your credentials
+5. Open the project in IntelliJ and build Maven to install the dependencies
+6. If everything works as expected, running the `Cis687Application.java` file should start the server!
+<hr />
+
 ### Project Members:
 - Rahul Kulhalli
 - Aman Velani
-- Manav
-- Neeraj
+- Manav Nisar
+- Neeraj Patil
 
 <hr/>
 
