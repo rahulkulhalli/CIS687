@@ -7,8 +7,8 @@ import org.syr.cis687.models.Student;
 
 public class LocationUtils {
 
-    public static final int EARTH_RADIUS = 6371000; // Radius of the Earth in meters
-    private static final double MILE_SCALE = 0.00062137273;
+    public static final double EARTH_RADIUS = 3959.0; // Radius of the Earth in miles
+    public static final double MILE_SCALE = 0.00062137273;
 
     public static double calculateHaversineDistance(Location location1, Location location2) {
         double lat1 = Math.toRadians(location1.getLatitude());
@@ -16,25 +16,39 @@ public class LocationUtils {
         double lat2 = Math.toRadians(location2.getLatitude());
         double lon2 = Math.toRadians(location2.getLongitude());
 
-        // Haversine formula
         double dLat = lat2 - lat1;
         double dLon = lon2 - lon1;
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
-                + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return EARTH_RADIUS * c * MILE_SCALE;
+
+        return EARTH_RADIUS * c;
     }
 
+<<<<<<< HEAD
     public static Location interpolate(Location startLocation, Location endLocation, double fraction) {
         if (fraction >= 1.0) {
             return endLocation;
         }
+=======
+    public static Location interpolate(Location start, Location end, double fraction) {
+        double lat1 = Math.toRadians(start.getLatitude());
+        double lon1 = Math.toRadians(start.getLongitude());
+        double lat2 = Math.toRadians(end.getLatitude());
+        double lon2 = Math.toRadians(end.getLongitude());
 
-        double lat1 = Math.toRadians(startLocation.getLatitude());
-        double lon1 = Math.toRadians(startLocation.getLongitude());
-        double lat2 = Math.toRadians(endLocation.getLatitude());
-        double lon2 = Math.toRadians(endLocation.getLongitude());
+        double d = calculateHaversineDistance(start, end);
+        double angularDistance = d / EARTH_RADIUS;
+>>>>>>> origin
 
+        double sinLat1 = Math.sin(lat1);
+        double cosLat1 = Math.cos(lat1);
+        double sinD = Math.sin(angularDistance);
+        double cosD = Math.cos(angularDistance);
+
+<<<<<<< HEAD
         double dLon = lon2 - lon1;
 
         double Bx = Math.cos(lat2) * Math.cos(dLon);
@@ -52,6 +66,30 @@ public class LocationUtils {
         location.setLongitude(lon3);
 
         return location;
+=======
+        double a = Math.sin((1 - fraction) * angularDistance) / sinD;
+        double b = Math.sin(fraction * angularDistance) / sinD;
+
+        double x = a * cosLat1 * Math.cos(lon1) + b * cosLat1 * Math.cos(lon2);
+        double y = a * cosLat1 * Math.sin(lon1) + b * cosLat1 * Math.sin(lon2);
+        double z = a * sinLat1 + b * sinLat1;
+
+        double lat3 = Math.atan2(z, Math.sqrt(x * x + y * y));
+        double lon3 = Math.atan2(y, x);
+
+        Location location = new Location();
+        location.setLatitude(Math.toDegrees(lat3));
+        location.setLongitude(Math.toDegrees(lon3));
+
+        return location;
+    }
+
+    public static boolean isLocationClose(Location location1, Location location2) {
+        // Define a tolerance for comparing double values.
+        double tolerance = 0.000001;
+        return Math.abs(location1.getLatitude() - location2.getLatitude()) < tolerance &&
+                Math.abs(location1.getLongitude() - location2.getLongitude()) < tolerance;
+>>>>>>> origin
     }
 
 

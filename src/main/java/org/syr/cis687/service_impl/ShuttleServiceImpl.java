@@ -37,6 +37,8 @@ public class ShuttleServiceImpl implements ShuttleService {
     @Autowired
     private ShuttleStopRepository stopRepository;
 
+    private double distanceAB;
+
     private Shuttle getShuttle() {
         List<Shuttle> shuttles = getAllShuttles();
         return !shuttles.isEmpty() ? shuttles.get(0) : null;
@@ -86,6 +88,12 @@ public class ShuttleServiceImpl implements ShuttleService {
 
         // Retrieve the first shuttle.
         Shuttle shuttle = shuttleList.get(0);
+
+        if (shuttle.getHasDepartedFromStop()) {
+            // Cannot add more students once the shuttle departs!
+            // TODO: Compute the ETA.
+            return null;
+        }
 
         // Does this student exist in the shuttle already?
         if (CommonUtils.isStudentOnShuttle(shuttle, studentId)) {
@@ -164,7 +172,7 @@ public class ShuttleServiceImpl implements ShuttleService {
 
         // 600000
 
-        System.out.println("[pollStartAndEnd] Polling startAndEnd...");
+        System.out.println("[pollStartAndEnd] Polling startAndEnd...\n");
 
         Shuttle shuttle = getShuttle();
         if (shuttle == null) {
@@ -195,14 +203,11 @@ public class ShuttleServiceImpl implements ShuttleService {
         // Get the current time.
         Time currentTime = Time.valueOf(LocalTime.now());
 
-        System.out.printf("[Current time: %s, startTime: %s, endTime: %s, Shuttle state: %s]",
-                currentTime, startTime, endTime, shuttle.getOperatingState());
-
         // start time.
         // currentTime.compareTo(startTime) >= 0 && currentTime.compareTo(startBuffer) <= 0
         if (currentTime.compareTo(startTime) >= 0) {
 
-            System.out.println("[pollStartAndEnd] Shuttle has arrived!");
+            System.out.println("[pollStartAndEnd] Shuttle has arrived!\n");
 
             if (this.stopRepository == null) {
                 return;
@@ -249,7 +254,7 @@ public class ShuttleServiceImpl implements ShuttleService {
 
         // 600000
 
-        System.out.println("[checkForStart] polling to see if shuttle can start...");
+        System.out.println("[checkForStart] polling to see if shuttle can start...\n");
 
         Shuttle shuttle = getShuttle();
         if (shuttle == null) {
@@ -273,18 +278,12 @@ public class ShuttleServiceImpl implements ShuttleService {
 
             Time currentTime = Time.valueOf(LocalTime.now());
 
-            System.out.println(String.format(
-                    "[arrivalTime=%s, currentTime=%s, diff=%d]",
-                    shuttle.getArrivalTime(), currentTime,
-                    currentTime.getTime() - shuttle.getArrivalTime().getTime()
-            ));
-
             // check if shuttle is full or 15 minutes have elapsed..
             // 900000L
             if (shuttle.getPassengerList().size() == shuttle.getMaxCapacity()
                     || (currentTime.getTime() - shuttle.getArrivalTime().getTime() >= 10000L)) {
 
-                System.out.println("[checkForStart] Shuttle has departed!");
+                System.out.println("[checkForStart] Shuttle has departed!\n");
 
                 // mark for departure.
                 shuttle.setArrivalTime(null);
@@ -292,6 +291,14 @@ public class ShuttleServiceImpl implements ShuttleService {
                 shuttle.setHasDepartedFromStop(true);
                 shuttle.setDepartureTime(currentTime);
                 shuttle.setTimeSinceLastStop(0L);
+<<<<<<< HEAD
+=======
+
+                // calculate the distance from shuttle to 1st student here.
+                this.distanceAB = LocationUtils.calculateHaversineDistance(
+                        shuttle.getCurrentLocation(), shuttle.getPassengerList().get(0).getAddress()
+                );
+>>>>>>> origin
 
                 // persist changes.
                 this.repository.save(shuttle);
@@ -312,7 +319,7 @@ public class ShuttleServiceImpl implements ShuttleService {
             return;
         }
 
-        System.out.println("[tripSimulation] Shuttle is on the move...");
+        System.out.println("[tripSimulation] Shuttle is on the move...\n");
 
         Location destination;
 
@@ -334,16 +341,32 @@ public class ShuttleServiceImpl implements ShuttleService {
 
         Location currentLocation = shuttle.getCurrentLocation();
 
-        if (currentLocation.getLatitude().equals(destination.getLatitude())
-                && currentLocation.getLongitude().equals(destination.getLongitude())
-                && !shuttle.getPassengerList().isEmpty()) {
+        if (LocationUtils.isLocationClose(currentLocation, destination)) {
             // This means that the shuttle has reached a student's destination.
 
+            System.out.println("[tripSimulation] Student dropped off! Moving on...\n");
+
             // Pop the student off the queue.
-            shuttle.getPassengerList().remove(0);
+            Student poppedStudent = shuttle.getPassengerList().remove(0);
+
+            // Disassociate the student from the shuttle.
+            poppedStudent.setShuttle(null);
 
             // Set timeSinceLastStop to 0.
             shuttle.setTimeSinceLastStop(0L);
+
+            // calculate the new total distance from student[i] - student[i+1]
+            if (!shuttle.getPassengerList().isEmpty()) {
+                this.distanceAB = LocationUtils.calculateHaversineDistance(
+                        poppedStudent.getAddress(), shuttle.getPassengerList().get(0).getAddress()
+                );
+            } else {
+                this.distanceAB = LocationUtils.calculateHaversineDistance(
+                        poppedStudent.getAddress(), CommonUtils.convertIterableToList(
+                                this.stopRepository.findAll()
+                        ).get(0).getShuttleStopLocation()
+                );
+            }
 
             // Persist to db.
             this.repository.save(shuttle);
@@ -352,9 +375,10 @@ public class ShuttleServiceImpl implements ShuttleService {
             return;
         }
 
-        // Update time since last stop. (Add 10 seconds.)
+        // Update time since the last stop. (Add 10 seconds.)
         shuttle.setTimeSinceLastStop(shuttle.getTimeSinceLastStop() + 10L);
 
+<<<<<<< HEAD
         // How far have you traveled since your last stop?
         // Speed is m/h. So first, convert timeSinceLastStop to hours.
         double distance = LocationUtils.calculateHaversineDistance(currentLocation, destination);
@@ -374,6 +398,24 @@ public class ShuttleServiceImpl implements ShuttleService {
         currentLocation.setLatitude(interpolated.getLatitude());
         currentLocation.setLongitude(interpolated.getLongitude());
         shuttle.setCurrentLocation(currentLocation);
+=======
+        // Calculate the distance traveled after the last interval.
+        double speed = shuttle.getCurrentSpeed(); // miles per hour
+        double distancePerInterval = speed * (shuttle.getTimeSinceLastStop() / 3600.0); // miles
+
+        double fraction = distancePerInterval / this.distanceAB;
+        Location newLocation = LocationUtils.interpolate(currentLocation, destination, fraction);
+
+        currentLocation.setLatitude(newLocation.getLatitude());
+        currentLocation.setLongitude(newLocation.getLongitude());
+
+        shuttle.setCurrentLocation(currentLocation);
+
+        System.out.println(
+                "Current location: (" + newLocation +
+                        "), distance to end: " + LocationUtils.calculateHaversineDistance(currentLocation, destination)
+        );
+>>>>>>> origin
 
         // persist in db.
         this.repository.save(shuttle);

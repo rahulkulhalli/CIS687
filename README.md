@@ -43,10 +43,10 @@ This project is implemented completely in Java Spring-Boot. The backend used a M
 <hr/>
 
 ### TODOs:
-- Fix the bug in the ETA calculation
+- ~Fix the bug in the ETA calculation~
 - Write unit tests
 - Incorporate Spring Security
-- Fix the location db bug
+- ~Fix the location db bug~
 - Add code docs
 - Create the presentation
 - Publish the Postman API collection here
