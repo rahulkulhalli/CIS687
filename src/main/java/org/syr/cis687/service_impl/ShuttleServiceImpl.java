@@ -93,6 +93,14 @@ public class ShuttleServiceImpl implements ShuttleService {
             return shuttle;
         }
 
+        if (shuttle.getPassengerList().size() == shuttle.getMaxCapacity()) {
+            // this means that we can't have additional students.
+            return null;
+        }
+
+        // Update the current capacity.
+        shuttle.setCurrentCapacity(shuttle.getCurrentCapacity() + 1);
+
         // Retrieve the student.
         Student student = students.get(0);
 
@@ -130,6 +138,9 @@ public class ShuttleServiceImpl implements ShuttleService {
             // Remember, this is a bidirectional relation. So, dereference the shuttle too.
             shuttle.getPassengerList().remove(student);
             student.setShuttle(null);
+
+            // Update the current capacity.
+            shuttle.setCurrentCapacity(shuttle.getCurrentCapacity() - 1);
         }
 
         // persist in db
@@ -245,14 +256,18 @@ public class ShuttleServiceImpl implements ShuttleService {
             return;
         }
 
+        // Shuttle can't start until there is at least someone in the shuttle.
         if (shuttle.getPassengerList().isEmpty()) {
             return;
         }
 
+        // if the shuttle has already departed, no need to check for Start.
         if (shuttle.getHasDepartedFromStop()) {
             return;
         }
 
+        // We only enter this method if the shuttle has arrived on the stop AND the shuttle is operational.
+        // Also, reaching this point of code means that there is at least one student in the shuttle.
         if (shuttle.getHasArrivedAtStop()
                 && shuttle.getOperatingState() == OperatingState.OPERATIONAL) {
 
@@ -276,6 +291,7 @@ public class ShuttleServiceImpl implements ShuttleService {
                 shuttle.setHasArrivedAtStop(false);
                 shuttle.setHasDepartedFromStop(true);
                 shuttle.setDepartureTime(currentTime);
+                shuttle.setTimeSinceLastStop(0L);
 
                 // persist changes.
                 this.repository.save(shuttle);
@@ -341,17 +357,23 @@ public class ShuttleServiceImpl implements ShuttleService {
 
         // How far have you traveled since your last stop?
         // Speed is m/h. So first, convert timeSinceLastStop to hours.
-        double timeOffsetHours = shuttle.getTimeSinceLastStop().doubleValue() / 3600.0;
+        double distance = LocationUtils.calculateHaversineDistance(currentLocation, destination);
+        double speed = shuttle.getCurrentSpeed();
+        long currentTime = shuttle.getTimeSinceLastStop();
 
-        // s = d/t (this value will be in miles).
-        double distanceTraveled = shuttle.getCurrentSpeed() / timeOffsetHours;
+        // currentTime * speedMph / (distanceAB * 3600);
+        double ratio = currentTime * speed / (distance * 3600);
 
-        double travelRatio = distanceTraveled / LocationUtils.calculateHaversineDistance(currentLocation, destination);
+        Location interpolated = LocationUtils.interpolate(currentLocation, destination, ratio);
 
-        Location interpolated = LocationUtils.interpolate(currentLocation, destination, travelRatio);
+        System.out.println(
+                "Destination: " + destination.toString() + ", currentLocation: " + currentLocation.toString() + "\n"
+        );
 
-        // Set the updated location.
-        shuttle.setCurrentLocation(interpolated);
+        // update the same location object.
+        currentLocation.setLatitude(interpolated.getLatitude());
+        currentLocation.setLongitude(interpolated.getLongitude());
+        shuttle.setCurrentLocation(currentLocation);
 
         // persist in db.
         this.repository.save(shuttle);

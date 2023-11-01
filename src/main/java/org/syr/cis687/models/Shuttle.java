@@ -51,7 +51,7 @@ public class Shuttle {
     @Getter @Setter
     private CurrentState currentState;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
     @JoinColumn(name = "current_location_fk")
     @JsonProperty("current_location")
     @Getter @Setter
