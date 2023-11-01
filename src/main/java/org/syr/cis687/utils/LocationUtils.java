@@ -27,12 +27,6 @@ public class LocationUtils {
         return EARTH_RADIUS * c;
     }
 
-<<<<<<< HEAD
-    public static Location interpolate(Location startLocation, Location endLocation, double fraction) {
-        if (fraction >= 1.0) {
-            return endLocation;
-        }
-=======
     public static Location interpolate(Location start, Location end, double fraction) {
         double lat1 = Math.toRadians(start.getLatitude());
         double lon1 = Math.toRadians(start.getLongitude());
@@ -41,32 +35,12 @@ public class LocationUtils {
 
         double d = calculateHaversineDistance(start, end);
         double angularDistance = d / EARTH_RADIUS;
->>>>>>> origin
 
         double sinLat1 = Math.sin(lat1);
         double cosLat1 = Math.cos(lat1);
         double sinD = Math.sin(angularDistance);
         double cosD = Math.cos(angularDistance);
 
-<<<<<<< HEAD
-        double dLon = lon2 - lon1;
-
-        double Bx = Math.cos(lat2) * Math.cos(dLon);
-        double By = Math.cos(lat2) * Math.sin(dLon);
-
-        double lat3 = Math.atan2(Math.sin(lat1) + Math.sin(lat2),
-                Math.sqrt((Math.cos(lat1) + Bx) * (Math.cos(lat1) + Bx) + By * By));
-        double lon3 = lon1 + Math.atan2(By, Math.cos(lat1) + Bx);
-
-        lat3 = Math.toDegrees(lat3);
-        lon3 = Math.toDegrees(lon3);
-
-        Location location = new Location();
-        location.setLatitude(lat3);
-        location.setLongitude(lon3);
-
-        return location;
-=======
         double a = Math.sin((1 - fraction) * angularDistance) / sinD;
         double b = Math.sin(fraction * angularDistance) / sinD;
 
@@ -89,9 +63,7 @@ public class LocationUtils {
         double tolerance = 0.000001;
         return Math.abs(location1.getLatitude() - location2.getLatitude()) < tolerance &&
                 Math.abs(location1.getLongitude() - location2.getLongitude()) < tolerance;
->>>>>>> origin
     }
-
 
     public static final ETABuilder ETA_BUILDER = new ETABuilder();
 
