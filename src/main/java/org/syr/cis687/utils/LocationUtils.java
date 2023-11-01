@@ -26,12 +26,8 @@ public class LocationUtils {
     }
 
     public static Location interpolate(Location startLocation, Location endLocation, double fraction) {
-
-        // Clip fraction to (0., 1.)
-        if (fraction < 0) {
-            fraction = 0;
-        } else if (fraction > 1) {
-            fraction = 1;
+        if (fraction >= 1.0) {
+            return endLocation;
         }
 
         double lat1 = Math.toRadians(startLocation.getLatitude());
@@ -39,33 +35,25 @@ public class LocationUtils {
         double lat2 = Math.toRadians(endLocation.getLatitude());
         double lon2 = Math.toRadians(endLocation.getLongitude());
 
-        double deltaLat = lat2 - lat1;
-        double deltaLon = lon2 - lon1;
+        double dLon = lon2 - lon1;
 
-        double a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) + Math.cos(lat1) * Math.cos(lat2) * Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double Bx = Math.cos(lat2) * Math.cos(dLon);
+        double By = Math.cos(lat2) * Math.sin(dLon);
 
-        double distance = EARTH_RADIUS * c * MILE_SCALE;
-        double radius_scaled = EARTH_RADIUS * MILE_SCALE;
+        double lat3 = Math.atan2(Math.sin(lat1) + Math.sin(lat2),
+                Math.sqrt((Math.cos(lat1) + Bx) * (Math.cos(lat1) + Bx) + By * By));
+        double lon3 = lon1 + Math.atan2(By, Math.cos(lat1) + Bx);
 
-        double bearing = Math.atan2(Math.sin(deltaLon) * Math.cos(lat2), Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(deltaLon));
+        lat3 = Math.toDegrees(lat3);
+        lon3 = Math.toDegrees(lon3);
 
-        double interpolatedDistance = fraction * distance;
+        Location location = new Location();
+        location.setLatitude(lat3);
+        location.setLongitude(lon3);
 
-        double newLat = Math.asin(Math.sin(lat1) * Math.cos(interpolatedDistance
-                / radius_scaled) + Math.cos(lat1)
-                * Math.sin(interpolatedDistance / radius_scaled) * Math.cos(bearing));
-
-        double newLon = lon1 + Math.atan2(Math.sin(bearing)
-                * Math.sin(interpolatedDistance / radius_scaled) * Math.cos(lat1),
-                Math.cos(interpolatedDistance / radius_scaled) - Math.sin(lat1) * Math.sin(newLat));
-
-        Location returnLocation = new Location();
-        returnLocation.setLatitude(Math.toDegrees(newLat));
-        returnLocation.setLongitude(Math.toDegrees(newLon));
-
-        return returnLocation;
+        return location;
     }
+
 
     public static final ETABuilder ETA_BUILDER = new ETABuilder();
 
