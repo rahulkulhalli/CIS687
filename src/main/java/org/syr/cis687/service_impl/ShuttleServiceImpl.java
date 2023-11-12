@@ -291,14 +291,10 @@ public class ShuttleServiceImpl implements ShuttleService {
                 shuttle.setHasDepartedFromStop(true);
                 shuttle.setDepartureTime(currentTime);
                 shuttle.setTimeSinceLastStop(0L);
-<<<<<<< HEAD
-=======
-
                 // calculate the distance from shuttle to 1st student here.
                 this.distanceAB = LocationUtils.calculateHaversineDistance(
                         shuttle.getCurrentLocation(), shuttle.getPassengerList().get(0).getAddress()
                 );
->>>>>>> origin
 
                 // persist changes.
                 this.repository.save(shuttle);
@@ -378,27 +374,6 @@ public class ShuttleServiceImpl implements ShuttleService {
         // Update time since the last stop. (Add 10 seconds.)
         shuttle.setTimeSinceLastStop(shuttle.getTimeSinceLastStop() + 10L);
 
-<<<<<<< HEAD
-        // How far have you traveled since your last stop?
-        // Speed is m/h. So first, convert timeSinceLastStop to hours.
-        double distance = LocationUtils.calculateHaversineDistance(currentLocation, destination);
-        double speed = shuttle.getCurrentSpeed();
-        long currentTime = shuttle.getTimeSinceLastStop();
-
-        // currentTime * speedMph / (distanceAB * 3600);
-        double ratio = currentTime * speed / (distance * 3600);
-
-        Location interpolated = LocationUtils.interpolate(currentLocation, destination, ratio);
-
-        System.out.println(
-                "Destination: " + destination.toString() + ", currentLocation: " + currentLocation.toString() + "\n"
-        );
-
-        // update the same location object.
-        currentLocation.setLatitude(interpolated.getLatitude());
-        currentLocation.setLongitude(interpolated.getLongitude());
-        shuttle.setCurrentLocation(currentLocation);
-=======
         // Calculate the distance traveled after the last interval.
         double speed = shuttle.getCurrentSpeed(); // miles per hour
         double distancePerInterval = speed * (shuttle.getTimeSinceLastStop() / 3600.0); // miles
@@ -415,7 +390,6 @@ public class ShuttleServiceImpl implements ShuttleService {
                 "Current location: (" + newLocation +
                         "), distance to end: " + LocationUtils.calculateHaversineDistance(currentLocation, destination)
         );
->>>>>>> origin
 
         // persist in db.
         this.repository.save(shuttle);

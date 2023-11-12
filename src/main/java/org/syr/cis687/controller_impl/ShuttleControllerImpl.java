@@ -2,6 +2,8 @@ package org.syr.cis687.controller_impl;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.syr.cis687.controller.ShuttleController;
@@ -41,12 +43,14 @@ public class ShuttleControllerImpl implements ShuttleController {
 
     @Override
     @PostMapping(path = "/addShuttle")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse> addShuttle(@RequestBody Shuttle shuttle) {
         return CommonUtils.validateAndReturn(this.shuttleService.addShuttle(shuttle), OpType.INSERT);
     }
 
     @Override
     @PostMapping(path = "/addStudentToShuttle")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STUDENT')")
     public ResponseEntity<ApiResponse> addStudentToShuttle(@RequestParam String studentId) {
         return CommonUtils.validateAndReturn(this.shuttleService.addStudentToShuttle(studentId), OpType.INSERT);
     }
