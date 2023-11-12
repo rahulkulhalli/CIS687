@@ -51,7 +51,7 @@ public class DriverControllerImpl implements DriverController {
 
     @Override
     @PutMapping(path = "/updateDriverDetails")
-    @PreAuthorize("hasRole('ROLE_ADMIN'), hasRole('ROLE_DRIVER')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STUDENT')")
     public ResponseEntity<ApiResponse> updateDriverDetails(@RequestParam Long id, @RequestBody DriverDetails details) {
         return CommonUtils.validateAndReturn(this.driverService.updateDriver(id, details), OpType.UPDATE);
     }
