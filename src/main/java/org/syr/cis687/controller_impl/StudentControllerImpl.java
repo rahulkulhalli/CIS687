@@ -51,7 +51,7 @@ public class StudentControllerImpl implements StudentController {
 
     @Override
     @PutMapping(path = "/updateStudent")
-    @PreAuthorize("hasRole('ROLE_ADMIN'), hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STUDENT')")
     public ResponseEntity<ApiResponse> updateStudent(@RequestParam Long id, @RequestBody Student student) {
         return CommonUtils.validateAndReturn(this.service.updateStudent(id, student), OpType.UPDATE);
     }
