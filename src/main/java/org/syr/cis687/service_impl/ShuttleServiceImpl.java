@@ -291,7 +291,6 @@ public class ShuttleServiceImpl implements ShuttleService {
                 shuttle.setHasDepartedFromStop(true);
                 shuttle.setDepartureTime(currentTime);
                 shuttle.setTimeSinceLastStop(0L);
-
                 // calculate the distance from shuttle to 1st student here.
                 this.distanceAB = LocationUtils.calculateHaversineDistance(
                         shuttle.getCurrentLocation(), shuttle.getPassengerList().get(0).getAddress()
