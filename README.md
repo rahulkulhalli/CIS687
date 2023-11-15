@@ -14,6 +14,8 @@ The use-case for this project is to design a real-time university shuttle simula
 - The shuttle operates on a daily schedule
 - If a student inside the shuttle invokes the /ETA endpoint, they will receive the estimated time to reach their address. This is calculated as the sum of the ETAs of all the students who boarded before this student and the ETA from the last student's address to this student's address
 - If a student outside the shuttle invokes the /ETA endpoint, they will receive the estimated time that the shuttle will require to drop all the current students and travel back to the shuttle stop
+- The location interpolation is performed using arithmetic interpolation, without considering the curvature of the earth.
+- Distances are designed as crow-flight distances, i.e., point-to-point distances. These distances consider the curvature of the earth and are calculated using the [Haversine formula](https://en.wikipedia.org/wiki/Haversine_formula).
 
 <hr/>
 
@@ -43,10 +45,9 @@ This project is implemented completely in Java Spring-Boot. The backend used a M
 <hr/>
 
 ### TODOs:
-- Fix the bug in the ETA calculation
-- Write unit tests
-- Incorporate Spring Security
-- Fix the location db bug
+- ~Fix the bug in the ETA calculation~
+- ~Write unit tests~
+- ~Incorporate Spring Security~ [Aman]
+- ~Fix the location db bug~
 - Add code docs
 - Create the presentation
-- Publish the Postman API collection here

@@ -19,6 +19,8 @@ import java.util.List;
 @Table(name = "shuttle")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Shuttle {
+    @Getter
+    private static final Location DEFAULT_LOCATION = new Location(43.03720157575044, -76.1315052496461);
 
     @NonNull
     @Id
@@ -51,7 +53,7 @@ public class Shuttle {
     @Getter @Setter
     private CurrentState currentState;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
     @JoinColumn(name = "current_location_fk")
     @JsonProperty("current_location")
     @Getter @Setter

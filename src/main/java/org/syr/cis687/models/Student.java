@@ -8,7 +8,9 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 
 @Entity
@@ -37,6 +39,15 @@ public class Student {
     @Getter @Setter private String emailId;
 
     @NonNull
+    @Column(name = "username")
+    @Getter @Setter private String username;
+
+    @NonNull
+    @Column(name = "password")
+    @Getter @Setter private String password;
+
+
+    @NonNull
     @Column(name = "contact_number", unique = true)
     @Getter @Setter private String contactNumber;
 
@@ -61,6 +72,22 @@ public class Student {
     @Getter @Setter
     private Boolean hasBoarded = false;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(  name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
+    public Student(){}
+    public Student(String firstName, String lastName, String emailId, String username, String password, String contactNumber, String orgId, Location address) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.emailId = emailId;
+        this.username = username;
+        this.password = password;
+        this.contactNumber = contactNumber;
+        this.orgId = orgId;
+        this.address = address;
+    }
     @Override
     public String toString() {
         return String.format(
@@ -102,5 +129,13 @@ public class Student {
                 this.id, this.firstName, this.lastName,
                 this.address, this.emailId, this.contactNumber, this.orgId
         );
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }

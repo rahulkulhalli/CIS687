@@ -7,3 +7,6 @@ INSERT IGNORE INTO shuttle_schedule (day_of_week, end_time, start_time) VALUES (
 INSERT IGNORE INTO shuttle_schedule (day_of_week, end_time, start_time) VALUES ('Saturday', '21:00:00', '09:00:00');
 INSERT IGNORE INTO location (latitude, longitude) VALUES (43.03720157575044, -76.1315052496461);
 INSERT IGNORE INTO shuttle_stop (stop_location_fk) VALUES (1);
+INSERT INTO roles(name) VALUES('ROLE_STUDENT');
+INSERT INTO roles(name) VALUES('ROLE_DRIVER');
+INSERT INTO roles(name) VALUES('ROLE_ADMIN');

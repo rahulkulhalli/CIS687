@@ -2,6 +2,7 @@ package org.syr.cis687.controller_impl;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.syr.cis687.controller.DriverController;
@@ -25,18 +26,21 @@ public class DriverControllerImpl implements DriverController {
 
     @Override
     @PostMapping(path = "/addDriverDetails")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse> addDriver(@RequestBody DriverDetails details) {
         return CommonUtils.validateAndReturn(this.driverService.addDriver(details), OpType.INSERT);
     }
 
     @Override
     @GetMapping(path = "/getAllDriverDetails")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse> getAllUsers() {
         return CommonUtils.validateAndReturn(this.driverService.getAllDrivers(), OpType.FIND_ALL);
     }
 
     @Override
     @GetMapping(path = "/getDriverDetailsById")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse> getDriverById(@RequestParam Long id) {
         Optional<DriverDetails> insertedObj = driverService.getDriverById(id);
         if (insertedObj.isEmpty()) {
@@ -47,12 +51,14 @@ public class DriverControllerImpl implements DriverController {
 
     @Override
     @PutMapping(path = "/updateDriverDetails")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STUDENT')")
     public ResponseEntity<ApiResponse> updateDriverDetails(@RequestParam Long id, @RequestBody DriverDetails details) {
         return CommonUtils.validateAndReturn(this.driverService.updateDriver(id, details), OpType.UPDATE);
     }
 
     @Override
     @DeleteMapping(path = "/deleteDriverDetails")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse> deleteDriverDetails(@RequestParam Long id) {
         return CommonUtils.validateAndReturn(this.driverService.deleteDriver(id), OpType.DELETE);
     }
