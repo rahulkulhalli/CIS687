@@ -210,6 +210,10 @@ public class ShuttleServiceImpl implements ShuttleService {
             return;
         }
 
+        if (shuttle.getHasDepartedFromStop()) {
+            return;
+        }
+
         long dayIndex = Integer.valueOf(LocalDate.now().getDayOfWeek().ordinal() + 1).longValue();
         ShuttleSchedule schedule = this.scheduleRepository.findById(dayIndex).orElse(null);
 
@@ -352,17 +356,30 @@ public class ShuttleServiceImpl implements ShuttleService {
                 // dropped. So we don't need to go back to the stop.
                 return;
             } else {
-                destination = CommonUtils.convertIterableToList(
-                        this.stopRepository.findAll()
-                ).get(0).getShuttleStopLocation();
+                destination = Shuttle.getDEFAULT_LOCATION();
+                System.out.println("Shuttle returning to College Place!");
             }
         } else {
             destination = shuttle.getPassengerList().get(0).getAddress();
+            System.out.println("Destination: " + destination.toString());
         }
 
         Location currentLocation = shuttle.getCurrentLocation();
 
         if (LocationUtils.isLocationClose(currentLocation, destination)) {
+
+            if (destination.equals(Shuttle.getDEFAULT_LOCATION())) {
+
+                System.out.println("[tripSimulation] Shuttle has returned to the stop!\n");
+
+                shuttle.setHasArrivedAtStop(true);
+                shuttle.setHasDepartedFromStop(false);
+                shuttle.setTimeSinceLastStop(0L);
+                currentLocation.setLongitude(destination.getLongitude());
+                currentLocation.setLatitude(destination.getLatitude());
+                shuttle.setCurrentLocation(currentLocation);
+                return;
+            }
             // This means that the shuttle has reached a student's destination.
 
             System.out.println("[tripSimulation] Student dropped off! Moving on...\n");
@@ -382,21 +399,17 @@ public class ShuttleServiceImpl implements ShuttleService {
             // calculate the new total distance from student[i] - student[i+1]
             if (!shuttle.getPassengerList().isEmpty()) {
                 newEnd = shuttle.getPassengerList().get(0).getAddress();
+                initializeTrackingVariables(newStart, newEnd);
             } else {
-                newEnd = CommonUtils.convertIterableToList(
-                        this.stopRepository.findAll()
-                ).get(0).getShuttleStopLocation();
+                newEnd = Shuttle.getDEFAULT_LOCATION();
+                initializeTrackingVariables(newStart, newEnd);
             }
-
-            initializeTrackingVariables(newStart, newEnd);
-
             // Persist to db.
             this.repository.save(shuttle);
 
             // Don't do anything else in this time cycle.
             return;
         }
-
         // Update time since the last stop. (Add 10 seconds.)
         shuttle.setTimeSinceLastStop(shuttle.getTimeSinceLastStop() + 10L);
 

@@ -19,6 +19,8 @@ import java.util.List;
 @Table(name = "shuttle")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Shuttle {
+    @Getter
+    private static final Location DEFAULT_LOCATION = new Location(43.03720157575044, -76.1315052496461);
 
     @NonNull
     @Id

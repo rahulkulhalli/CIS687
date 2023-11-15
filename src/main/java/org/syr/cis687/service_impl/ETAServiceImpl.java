@@ -60,7 +60,7 @@ public class ETAServiceImpl implements ETAService {
         ETA eta = LocationUtils.ETA_BUILDER
                 .withShuttle(shuttle)
                 .forStudent(student)
-                .withShuttleStopLocation(shuttleStop.getShuttleStopLocation())
+                .withShuttleStopLocation(Shuttle.getDEFAULT_LOCATION())
                 .calculate();
 
         if (eta == null) {
