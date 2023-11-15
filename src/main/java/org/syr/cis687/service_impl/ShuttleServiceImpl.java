@@ -22,6 +22,8 @@ import java.util.Optional;
 @Service
 public class ShuttleServiceImpl implements ShuttleService {
 
+    private static final Long TRIGGER_EVERY = 10L;
+
     @Autowired
     private ShuttleRepository repository;
 
@@ -38,6 +40,9 @@ public class ShuttleServiceImpl implements ShuttleService {
     private ShuttleStopRepository stopRepository;
 
     private double distanceAB;
+    private double estimatedDuration;
+    private int totalIntervals;
+    private double intervalFactor;
 
     private Shuttle getShuttle() {
         List<Shuttle> shuttles = getAllShuttles();
@@ -131,13 +136,18 @@ public class ShuttleServiceImpl implements ShuttleService {
             return null;
         }
 
+        // Retrieve the first shuttle.
+        Shuttle shuttle = shuttleList.get(0);
+
+        if  (shuttle.getHasDepartedFromStop()) {
+            // Cannot remove student.
+            return null;
+        }
+
         List<Student> students = this.studentRepository.findByOrgId(studentId);
         if (students == null || students.isEmpty()) {
             return null;
         }
-
-        // Retrieve the first shuttle.
-        Shuttle shuttle = shuttleList.get(0);
 
         // Retrieve the student.
         Student student = students.get(0);
@@ -291,10 +301,19 @@ public class ShuttleServiceImpl implements ShuttleService {
                 shuttle.setHasDepartedFromStop(true);
                 shuttle.setDepartureTime(currentTime);
                 shuttle.setTimeSinceLastStop(0L);
+
                 // calculate the distance from shuttle to 1st student here.
+                // distance is in miles.
                 this.distanceAB = LocationUtils.calculateHaversineDistance(
                         shuttle.getCurrentLocation(), shuttle.getPassengerList().get(0).getAddress()
                 );
+
+                // calculate duration using s=d/t. d=m, s=m/h, t=h * 3600 = seconds.
+                this.estimatedDuration = this.distanceAB / shuttle.getCurrentSpeed() * 3600.0;
+
+                // total intervals.
+                this.totalIntervals = (int) (this.estimatedDuration / TRIGGER_EVERY);
+                this.intervalFactor = 1.0 / this.totalIntervals;
 
                 // persist changes.
                 this.repository.save(shuttle);
@@ -374,12 +393,13 @@ public class ShuttleServiceImpl implements ShuttleService {
         // Update time since the last stop. (Add 10 seconds.)
         shuttle.setTimeSinceLastStop(shuttle.getTimeSinceLastStop() + 10L);
 
-        // Calculate the distance traveled after the last interval.
-        double speed = shuttle.getCurrentSpeed(); // miles per hour
-        double distancePerInterval = speed * (shuttle.getTimeSinceLastStop() / 3600.0); // miles
+        // calculate the number of  elapsed intervals.
+        int intervalNumber = (int) (shuttle.getTimeSinceLastStop() / 10.0);
 
-        double fraction = distancePerInterval / this.distanceAB;
-        Location newLocation = LocationUtils.interpolate(currentLocation, destination, fraction);
+        // get fraction of distance covered.
+        double distanceCovered = (double) intervalNumber / this.totalIntervals;
+
+        Location newLocation = LocationUtils.interpolate(currentLocation, destination, distanceCovered);
 
         currentLocation.setLatitude(newLocation.getLatitude());
         currentLocation.setLongitude(newLocation.getLongitude());

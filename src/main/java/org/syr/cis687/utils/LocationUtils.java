@@ -28,41 +28,27 @@ public class LocationUtils {
     }
 
     public static Location interpolate(Location start, Location end, double fraction) {
-        double lat1 = Math.toRadians(start.getLatitude());
-        double lon1 = Math.toRadians(start.getLongitude());
-        double lat2 = Math.toRadians(end.getLatitude());
-        double lon2 = Math.toRadians(end.getLongitude());
+        if (fraction > 1.0) {
+            fraction = 1.0;
+        }
 
-        double d = calculateHaversineDistance(start, end);
-        double angularDistance = d / EARTH_RADIUS;
+        double lat = start.getLatitude() + (end.getLatitude() - start.getLatitude()) * fraction;
+        double lng = start.getLongitude() + (end.getLongitude() - start.getLongitude()) * fraction;
 
-        double sinLat1 = Math.sin(lat1);
-        double cosLat1 = Math.cos(lat1);
-        double sinD = Math.sin(angularDistance);
-        double cosD = Math.cos(angularDistance);
+        Location newLocation = new Location();
+        newLocation.setLatitude(lat);
+        newLocation.setLongitude(lng);
 
-        double a = Math.sin((1 - fraction) * angularDistance) / sinD;
-        double b = Math.sin(fraction * angularDistance) / sinD;
-
-        double x = a * cosLat1 * Math.cos(lon1) + b * cosLat1 * Math.cos(lon2);
-        double y = a * cosLat1 * Math.sin(lon1) + b * cosLat1 * Math.sin(lon2);
-        double z = a * sinLat1 + b * sinLat1;
-
-        double lat3 = Math.atan2(z, Math.sqrt(x * x + y * y));
-        double lon3 = Math.atan2(y, x);
-
-        Location location = new Location();
-        location.setLatitude(Math.toDegrees(lat3));
-        location.setLongitude(Math.toDegrees(lon3));
-
-        return location;
+        return newLocation;
     }
 
     public static boolean isLocationClose(Location location1, Location location2) {
         // Define a tolerance for comparing double values.
-        double tolerance = 0.000001;
-        return Math.abs(location1.getLatitude() - location2.getLatitude()) < tolerance &&
-                Math.abs(location1.getLongitude() - location2.getLongitude()) < tolerance;
+        double tolerance = 0.0001;
+        if(calculateHaversineDistance(location1, location2) < tolerance){
+            return true;
+        }
+        return false;
     }
 
     public static final ETABuilder ETA_BUILDER = new ETABuilder();
