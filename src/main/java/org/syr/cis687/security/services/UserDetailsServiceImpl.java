@@ -17,6 +17,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
   @Autowired
   StudentRepository userRepository;
 
+  // This is the method that builds the UserDetailsImpl object from the Student object which is used by spring security to authenticate the user
   @Override
   @Transactional
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

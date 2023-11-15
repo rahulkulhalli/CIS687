@@ -24,6 +24,7 @@ public class JwtUtils {
   @Value("${cis687.app.jwtExpirationMs}")
   private int jwtExpirationMs;
 
+  // This method is used to generate a JWT token for the user:
   public String generateJwtToken(Authentication authentication) {
 
     UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
@@ -40,11 +41,13 @@ public class JwtUtils {
     return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
   }
 
+  // This method is used to parse the username from a JWT token
   public String getUserNameFromJwtToken(String token) {
     return Jwts.parserBuilder().setSigningKey(key()).build()
                .parseClaimsJws(token).getBody().getSubject();
   }
 
+    // This method is used to validate a JWT authentication token
   public boolean validateJwtToken(String authToken) {
     try {
       Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);

@@ -27,7 +27,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
   private UserDetailsServiceImpl userDetailsService;
 
   private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
-
+  // This method is called for every request that comes in. Its job is to inspect the request and determine whether the request contains a valid JWT token in the Authorization header:
+  // If the request has JWT token, validate it, parse username from it
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
