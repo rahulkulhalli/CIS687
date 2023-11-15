@@ -16,11 +16,15 @@ import java.util.Optional;
 @Service
 public class StudentServiceImpl implements StudentService {
 
-    @Autowired
     private StudentRepository repository;
 
-    @Autowired
     private LocationRepository locationRepository;
+
+    @Autowired
+    public StudentServiceImpl(StudentRepository repo, LocationRepository lRepo) {
+        this.repository = repo;
+        this.locationRepository = lRepo;
+    }
 
     @Override
     public Optional<Student> getStudentById(Long id) {
