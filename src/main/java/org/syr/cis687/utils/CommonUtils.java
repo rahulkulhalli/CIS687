@@ -166,6 +166,26 @@ public class CommonUtils {
         }
     }
 
+    public static int getStudentIndex(Shuttle shuttle, String studentId) {
+
+        if (!isStudentOnShuttle(shuttle, studentId)) {
+            return -1;
+        }
+
+        try {
+            for (int i = 0; i < shuttle.getPassengerList().size(); i++) {
+                Student student = shuttle.getPassengerList().get(i);
+                if (student.getOrgId().trim().equalsIgnoreCase(studentId.trim())) {
+                    return i;
+                }
+            }
+
+            return -1;
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
     public static String getApiKey() {
         try {
             // Initialize the Loader.

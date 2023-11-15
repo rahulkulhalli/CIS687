@@ -46,11 +46,15 @@ public class WebSecurityConfig {
     return authConfig.getAuthenticationManager();
   }
 
+  // This encryption method used is BCryptPasswordEncoder
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
-  
+
+  // This method is used to configure the security filter chain which allows us to configure the security of our application
+  // The filter chain is configured to disable csrf, handle authentication exceptions, set the session management to stateless, and authorize requests
+  // The filter chain also adds the authenticationJwtTokenFilter before the UsernamePasswordAuthenticationFilter
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(csrf -> csrf.disable())
