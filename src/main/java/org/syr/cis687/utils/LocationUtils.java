@@ -111,6 +111,9 @@ public class LocationUtils {
 
             // Determine if the student is in the shuttle.
             if (CommonUtils.isStudentOnShuttle(this.shuttle, this.student.getOrgId())) {
+
+                System.out.println("Student is on the shuttle");
+
                 // how many people before this student?
                 double distanceToBeCovered = 0.0;
                 double timeRequired = 0.0;
@@ -160,9 +163,15 @@ public class LocationUtils {
                 etaObj.setEstimatedDistance(String.format("%f miles", distanceToBeCovered));
 
             } else {
+
+                System.out.println("Student is NOT on the shuttle");
+
                 // iterate over ALL Students in the shuttle and sum their pairwise distance
                 // and add the distance from the last student's address to the shuttle stop.
-                double distance = 0.0;
+                double distance = calculateHaversineDistance(
+                        this.shuttle.getCurrentLocation(),
+                        passengers.get(0).getAddress()
+                );
 
                 for (int pointer = 1; pointer < passengers.size(); pointer++) {
                     Student trailingStudent = passengers.get(pointer-1);

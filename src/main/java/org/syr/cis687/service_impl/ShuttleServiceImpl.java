@@ -313,7 +313,6 @@ public class ShuttleServiceImpl implements ShuttleService {
                 // System.out.println("[checkForStart] Shuttle has departed!\n");
 
                 // mark for departure.
-                shuttle.setArrivalTime(null);
                 shuttle.setHasArrivedAtStop(false);
                 shuttle.setHasDepartedFromStop(true);
                 shuttle.setDepartureTime(currentTime);
