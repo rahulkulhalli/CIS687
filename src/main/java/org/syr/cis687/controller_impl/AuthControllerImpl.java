@@ -57,18 +57,20 @@ public class AuthControllerImpl implements AuthController {
   @PostMapping("/signin")
   @Override
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-
+    // Authenticate user
     Authentication authentication = authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
+    // Generate jwt token
     String jwt = jwtUtils.generateJwtToken(authentication);
-    
+    // Get user details and roles
     UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();    
     List<String> roles = userDetails.getAuthorities().stream()
         .map(item -> item.getAuthority())
         .collect(Collectors.toList());
 
+    // return jwt with username and email
     return ResponseEntity.ok(new JwtResponse(jwt, 
                          userDetails.getId(), 
                          userDetails.getUsername(), 
@@ -79,12 +81,13 @@ public class AuthControllerImpl implements AuthController {
   @PostMapping("/signup")
   @Override
   public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+    // Check if username and email already exists
     if (userRepository.existsByUsername(signUpRequest.getUsername())) {
       return ResponseEntity
           .badRequest()
           .body(new MessageResponse("Error: Username is already taken!"));
     }
-
+    // Check if email already exists
     if (userRepository.existsByEmailId(signUpRequest.getEmail())) {
       return ResponseEntity
           .badRequest()
@@ -98,10 +101,11 @@ public class AuthControllerImpl implements AuthController {
                signUpRequest.getUsername(),
                encoder.encode(signUpRequest.getPassword()),
                   signUpRequest.getContactNumber(), signUpRequest.getOrgId(), signUpRequest.getAddress());
-    System.out.println(user);
+
     Set<String> strRoles = signUpRequest.getRole();
     Set<Role> roles = new HashSet<>();
 
+    // Assign roles
     if (strRoles == null) {
       Role userRole = roleRepository.findByName(ERole.ROLE_STUDENT)
           .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
@@ -131,7 +135,7 @@ public class AuthControllerImpl implements AuthController {
 
     user.setRoles(roles);
     userRepository.save(user);
-
+    // Return success message
     return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
   }
 }

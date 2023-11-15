@@ -35,6 +35,7 @@ public class UserDetailsImpl implements UserDetails {
     this.authorities = authorities;
   }
 
+  // This is the method that builds the UserDetailsImpl object from the Student object which is used by spring security to authenticate the user
   public static UserDetailsImpl build(Student user) {
     List<GrantedAuthority> authorities = user.getRoles().stream()
         .map(role -> new SimpleGrantedAuthority(role.getName().name()))
