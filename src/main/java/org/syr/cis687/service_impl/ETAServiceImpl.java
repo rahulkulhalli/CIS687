@@ -32,12 +32,6 @@ public class ETAServiceImpl implements ETAService {
         // Ideally should only be one value.
         List<Student> found = this.studentRepository.findByOrgId(orgId);
 
-        ShuttleStop shuttleStop = this.shuttleStopRepository.findById(1L).orElse(null);
-
-        if (shuttleStop == null) {
-            return CommonUtils.getBadResponse(null, "No ShuttleStop object found for ETA computation!");
-        }
-
         // First, let's see if the id exists in the DB.
         if (found == null || found.isEmpty()) {
             // no such student in the db. Return error.
