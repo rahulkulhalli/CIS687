@@ -93,6 +93,13 @@ public class CommonUtils {
         }
     }
 
+    /**
+     * A method to validate the body against a given OpType.
+     * @param obj Object to validate.
+     * @param opType Operation type to validate.
+     * @return API Response.
+     * @param <T> Generic body.
+     */
     @SuppressWarnings("rawtypes")
     public static <T> ResponseEntity<ApiResponse> validateAndReturn(T obj, OpType opType) {
         try {
@@ -132,6 +139,13 @@ public class CommonUtils {
         }
     }
 
+    /**
+     * Get a pre-formatted Bad response.
+     * @param data Data body
+     * @param errorMsg A custom message to return.
+     * @return The Spring API response.
+     * @param <T> Generic return type.
+     */
     public static <T> ResponseEntity<ApiResponse> getBadResponse(T data, String errorMsg) {
         ApiResponse badResponse = new ApiResponse();
         badResponse.setData(data);
@@ -142,6 +156,13 @@ public class CommonUtils {
         return ResponseEntity.badRequest().body(badResponse);
     }
 
+    /**
+     * Get a pre-formatted OK response.
+     * @param data Data body
+     * @param successMsg A custom message to return.
+     * @return The Spring API response.
+     * @param <T> Generic return type.
+     */
     public static <T> ResponseEntity<ApiResponse> getOkResponse(T data, String successMsg) {
         ApiResponse badResponse = new ApiResponse();
         badResponse.setData(data);
@@ -152,6 +173,12 @@ public class CommonUtils {
         return ResponseEntity.ok().body(badResponse);
     }
 
+    /**
+     * Check if the student is on the shuttle.
+     * @param shuttle Current shuttle.
+     * @param studentId StudentID to search.
+     * @return A boolean value indicating whether the student is on the shuttle.
+     */
     public static boolean isStudentOnShuttle(Shuttle shuttle, String studentId) {
         try {
             for (Student s : shuttle.getPassengerList()) {
@@ -166,6 +193,12 @@ public class CommonUtils {
         }
     }
 
+    /**
+     * Get the index of the current student in the shuttle. Return -1 otherwise.
+     * @param shuttle Shuttle object
+     * @param studentId Student to search for.
+     * @return Index of student in the shuttle.
+     */
     public static int getStudentIndex(Shuttle shuttle, String studentId) {
 
         if (!isStudentOnShuttle(shuttle, studentId)) {
@@ -184,35 +217,5 @@ public class CommonUtils {
         } catch (Exception e) {
             return -1;
         }
-    }
-
-    public static String getApiKey() {
-        try {
-            // Initialize the Loader.
-            ClassLoader loader = CommonUtils.class.getClassLoader();
-            try (InputStream iStream = loader.getResourceAsStream("API_KEYS.json")) {
-
-                if (iStream == null) {
-                    // Silently fail for now.
-                    return null;
-                }
-
-                // Instantiate the reader.
-                JsonReader reader = Json.createReader(iStream);
-
-                // Parse the JSON.
-                JsonObject jsonObject = reader.readObject();
-
-                // Return the Value associated with the key.
-                return jsonObject.getString("GOOGLE_MAPS");
-            }
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    public static Long convertTimeToEpoch(Time time) {
-        Date date = new Date(time.getTime());
-        return (date.getTime() / 1000);
     }
 }
