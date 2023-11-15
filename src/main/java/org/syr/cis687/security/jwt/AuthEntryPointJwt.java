@@ -22,6 +22,8 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 
   private static final Logger logger = LoggerFactory.getLogger(AuthEntryPointJwt.class);
 
+  // This method is called whenever an exception is thrown due to an unauthenticated user trying to access a resource that requires authentication.
+  // In this case, we’ll simply respond with a 401 error containing the exception message.
   @Override
   public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
       throws IOException, ServletException {

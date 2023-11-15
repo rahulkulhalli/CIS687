@@ -20,6 +20,7 @@ public class LocationUtils {
      * @return Distance(A, B)
      */
     public static double calculateHaversineDistance(Location location1, Location location2) {
+        // Convert all the attributes to radians.
         double lat1 = Math.toRadians(location1.getLatitude());
         double lon1 = Math.toRadians(location1.getLongitude());
         double lat2 = Math.toRadians(location2.getLatitude());
@@ -48,6 +49,7 @@ public class LocationUtils {
             fraction = 1.0;
         }
 
+        // Interpolate using start + (fraction * (end - start))
         double lat = start.getLatitude() + (end.getLatitude() - start.getLatitude()) * fraction;
         double lng = start.getLongitude() + (end.getLongitude() - start.getLongitude()) * fraction;
 
@@ -58,6 +60,12 @@ public class LocationUtils {
         return newLocation;
     }
 
+    /**
+     * Since two locations might not be exactly the same, we allow a tolerance of 1e-4 miles.
+     * @param location1 Location 1
+     * @param location2 Location 2
+     * @return A boolean indicating whether the two locations are approximately equal.
+     */
     public static boolean isLocationClose(Location location1, Location location2) {
         // Define a tolerance for comparing double values.
         double tolerance = 0.0001;
@@ -66,6 +74,12 @@ public class LocationUtils {
 
     public static final ETABuilder ETA_BUILDER = new ETABuilder();
 
+    /**
+     * An internal Builder class that is used to calculate the ETA for the shuttle to reach the shuttle stop.
+     * Case 1: If the student is in the shuttle, the ETA displays the time to their address.
+     * Case 2: If the student is querying the ETA from outside, the total ETA = time required for the shuttle to
+     *      drop all the students in the shuttle + time to return from the last student's location to the shuttle stop.
+     */
     public static class ETABuilder {
         private Shuttle shuttle;
         private Student student;
@@ -116,7 +130,6 @@ public class LocationUtils {
 
                 // how many people before this student?
                 double distanceToBeCovered = 0.0;
-                double timeRequired = 0.0;
 
                 // Check if the student is at the beginning.
                 if (passengers.get(0).getOrgId().equals(this.student.getOrgId())) {
@@ -148,17 +161,18 @@ public class LocationUtils {
                         passengers.get(0).getAddress()
                 );
 
-                // i == 1??
+                // Use a sliding window to compute the distance pairs.
                 for (int i = 1; i <= studentIndex; i++) {
-                    Student trailing = passengers.get(i);
-                    Student current = passengers.get(i-1);
+                    Student trailing = passengers.get(i-1);
+                    Student current = passengers.get(i);
 
                     distanceToBeCovered += calculateHaversineDistance(
                             trailing.getAddress(), current.getAddress()
                     );
                 }
 
-                timeRequired = (distanceToBeCovered / this.shuttle.getCurrentSpeed()) * 60;
+                // Report ETA in minutes.
+                double timeRequired = (distanceToBeCovered / this.shuttle.getCurrentSpeed()) * 60;
                 etaObj.setEstimatedTime(String.format("%f minutes", timeRequired));
                 etaObj.setEstimatedDistance(String.format("%f miles", distanceToBeCovered));
 
@@ -173,6 +187,7 @@ public class LocationUtils {
                         passengers.get(0).getAddress()
                 );
 
+                // Similar to the previous scenario, use a sliding window to calculate pairwise distances.
                 for (int pointer = 1; pointer < passengers.size(); pointer++) {
                     Student trailingStudent = passengers.get(pointer-1);
                     Student currentStudent = passengers.get(pointer);
